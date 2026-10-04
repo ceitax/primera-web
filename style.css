@@ -1,0 +1,68 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  font-family: Georgia, "Times New Roman", serif;
+  background: #f4f1ea;
+  color: #1f1a14;
+}
+
+.tarjeta {
+  width: 100%;
+  max-width: 520px;
+  padding: 48px 40px;
+  background: #fffdf8;
+  border: 1px solid #e4ddd0;
+  border-radius: 16px;
+}
+
+.etiqueta {
+  margin-bottom: 12px;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #8a6a3b;
+}
+
+h1 {
+  margin-bottom: 16px;
+  font-size: 2.2rem;
+  line-height: 1.15;
+  font-weight: 600;
+}
+
+.texto {
+  margin-bottom: 28px;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #4a433a;
+}
+
+.boton {
+  border: none;
+  border-radius: 999px;
+  padding: 12px 22px;
+  font-family: "Segoe UI", sans-serif;
+  font-size: 1rem;
+  color: #fffdf8;
+  background: #1f1a14;
+  cursor: pointer;
+}
+
+.boton:hover {
+  background: #3a3126;
+}
+
+.boton:focus-visible {
+  outline: 2px solid #8a6a3b;
+  outline-offset: 3px;
+}
