@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FLC Propiedades · FLC Ingeniería</title>
+    <meta
+      name="description"
+      content="Catálogo de parcelas y terrenos de FLC Propiedades, con mapa interactivo."
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="logo" href="index.html">FLC Ingeniería</a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">
+          Menú
+        </button>
+        <nav id="menu" class="nav" aria-label="Principal">
+          <a href="index.html">Inicio</a>
+          <a href="electricidad.html">FLC Electricidad</a>
+          <a href="propiedades.html">FLC Propiedades</a>
+          <a href="desarrollo.html">FLC Desarrollo</a>
+          <a href="index.html#contacto">Contacto</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero hero-page">
+        <div class="wrap">
+          <p class="eyebrow">FLC Propiedades</p>
+          <h1>Parcelas y terrenos</h1>
+          <p class="lead">
+            Un catálogo claro para ver qué hay disponible y dónde está cada lote.
+          </p>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="wrap">
+          <div class="intro">
+            <p class="eyebrow">Catálogo</p>
+            <h2>Tipos de propiedad</h2>
+            <p>
+              Estas fichas describen la oferta. Los lotes concretos llegan con
+              la pestaña FLC Propiedades del Google Sheet.
+            </p>
+          </div>
+          <div class="grid-3">
+            <article class="card">
+              <span class="badge badge-operativo">Operativo</span>
+              <h3>Parcelas urbanas</h3>
+              <p>Lotes en zonas consolidadas, listos para revisar superficie y acceso.</p>
+            </article>
+            <article class="card">
+              <span class="badge badge-operativo">Operativo</span>
+              <h3>Terrenos productivos</h3>
+              <p>Superficies rurales o periurbanas para uso productivo.</p>
+            </article>
+            <article class="card">
+              <span class="badge badge-futuro">Próximo</span>
+              <h3>Proyectos en evaluación</h3>
+              <p>Terrenos en estudio, todavía fuera del catálogo público.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-muted">
+        <div class="wrap mapa-layout">
+          <div class="intro">
+            <p class="eyebrow">Mapa</p>
+            <h2>Dónde está cada lote</h2>
+            <p>Cada lote de la pestaña FLC Propiedades aparece como un punto.</p>
+          </div>
+          <div id="mapa" data-fuente="FLC Propiedades"></div>
+          <p class="nota">Leyendo la pestaña FLC Propiedades…</p>
+          <ul id="puntos" class="puntos"></ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <p>FLC Ingeniería</p>
+        <a href="index.html#contacto">Contacto</a>
+      </div>
+    </footer>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="js/main.js"></script>
+  </body>
+</html>

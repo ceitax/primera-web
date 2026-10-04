@@ -3,18 +3,156 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Mi primera página</title>
-    <link rel="stylesheet" href="style.css" />
+    <title>FLC Ingeniería</title>
+    <meta
+      name="description"
+      content="FLC Ingeniería integra electricidad, propiedades y desarrollo tecnológico con una visión STEM regional."
+    />
+    <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
-    <main class="tarjeta">
-      <p class="etiqueta">Fundamentos web</p>
-      <h1>Hola, soy tu primera página</h1>
-      <p class="texto">
-        El HTML describe el contenido. El CSS decide cómo se ve. Esta página
-        usa solo esos dos lenguajes, cada uno en su propio archivo.
-      </p>
-      <button type="button" class="boton">Empezar a aprender</button>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="logo" href="index.html">FLC Ingeniería</a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">
+          Menú
+        </button>
+        <nav id="menu" class="nav" aria-label="Principal">
+          <a href="index.html">Inicio</a>
+          <a href="electricidad.html">FLC Electricidad</a>
+          <a href="propiedades.html">FLC Propiedades</a>
+          <a href="desarrollo.html">FLC Desarrollo</a>
+          <a href="index.html#contacto">Contacto</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap">
+          <p class="eyebrow">Ingeniería y tecnología regional</p>
+          <h1>FLC Ingeniería</h1>
+          <p class="lead">
+            Electricidad, territorio y desarrollo digital en una sola plataforma.
+            Obra que se ejecuta y herramientas que se pueden usar.
+          </p>
+          <div class="hero-actions">
+            <a class="btn" href="#areas">Conocer las áreas</a>
+            <a class="btn btn-ghost" href="#contacto">Contacto</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="quienes-somos">
+        <div class="wrap split">
+          <div>
+            <p class="eyebrow">Quiénes somos</p>
+            <h2>Ingeniería con propósito regional</h2>
+            <p>
+              FLC Ingeniería reúne obra, territorio y software. El propósito es
+              llevar ingeniería útil a la región: proyectos eléctricos que se
+              ejecutan, suelo que se ordena y herramientas digitales hechas para
+              usarse de verdad.
+            </p>
+            <p>
+              La visión es STEM. Ciencia, tecnología, ingeniería y matemática
+              ordenan cómo se mide, se diseña y se construye. De ahí salen las
+              tres unidades del estudio.
+            </p>
+          </div>
+          <ul class="pillars">
+            <li class="pillar">
+              <h3>Visión STEM</h3>
+              <p>Criterio técnico en cada decisión, desde el dato hasta la obra.</p>
+            </li>
+            <li class="pillar">
+              <h3>Ingeniería</h3>
+              <p>Diseño y ejecución con estándar de obra, no solo de presentación.</p>
+            </li>
+            <li class="pillar">
+              <h3>Tecnología regional</h3>
+              <p>Herramientas pensadas para el territorio donde se trabaja.</p>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section section-muted" id="areas">
+        <div class="wrap">
+          <div class="intro">
+            <p class="eyebrow">Unidades</p>
+            <h2>Tres áreas, una misma ingeniería</h2>
+            <p>Cada unidad tiene su frente de trabajo y su propio espacio en la plataforma.</p>
+          </div>
+          <div class="grid-3">
+            <article class="card">
+              <span class="badge badge-operativo">Operativo</span>
+              <h3>FLC Electricidad</h3>
+              <p>Servicios eléctricos y el mapa de los proyectos ya ejecutados.</p>
+              <a href="electricidad.html">Ver electricidad</a>
+            </article>
+            <article class="card">
+              <span class="badge badge-operativo">Operativo</span>
+              <h3>FLC Propiedades</h3>
+              <p>Catálogo de parcelas y terrenos, con mapa para ubicar cada lote.</p>
+              <a href="propiedades.html">Ver propiedades</a>
+            </article>
+            <article class="card">
+              <span class="badge badge-desarrollo">En desarrollo</span>
+              <h3>FLC Desarrollo</h3>
+              <p>Showroom de proyectos web: Fuchiko y NODO.</p>
+              <a href="desarrollo.html">Ver desarrollo</a>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta">
+        <div class="wrap">
+          <div class="cta-panel">
+            <div>
+              <h2>¿Tienes un proyecto en mente?</h2>
+              <p>Cuéntanos el frente de trabajo y vemos por dónde empezar.</p>
+            </div>
+            <a class="btn" href="#contacto">Hablar con FLC</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="contacto">
+        <div class="wrap">
+          <div class="intro">
+            <p class="eyebrow">Contacto</p>
+            <h2>Hablemos del proyecto</h2>
+            <p>
+              Elige el área y seguimos la conversación desde ese frente de trabajo.
+            </p>
+          </div>
+          <div class="contacto-grid">
+            <a class="card" href="electricidad.html">
+              <h3>Electricidad</h3>
+              <p>Instalaciones, mantenimiento y obras ejecutadas.</p>
+            </a>
+            <a class="card" href="propiedades.html">
+              <h3>Propiedades</h3>
+              <p>Parcelas, terrenos y su ubicación en el mapa.</p>
+            </a>
+            <a class="card" href="desarrollo.html">
+              <h3>Desarrollo</h3>
+              <p>Fuchiko, NODO y los próximos productos digitales.</p>
+            </a>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <p>FLC Ingeniería</p>
+        <a href="index.html#contacto">Contacto</a>
+      </div>
+    </footer>
+
+    <script src="js/main.js"></script>
   </body>
 </html>
