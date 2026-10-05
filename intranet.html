@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Intranet · FLC Ingeniería</title>
+    <meta name="description" content="Intranet de FLC Ingeniería: proyectos, checklist, inventario y carpetas de Drive." />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="header-inner">
+        <a class="logo" href="index.html">FLC Ingeniería</a>
+        <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">
+          Menú
+        </button>
+        <nav id="menu" class="nav" aria-label="Principal">
+          <a href="index.html">Inicio</a>
+          <a href="electricidad.html">FLC Electricidad</a>
+          <a href="propiedades.html">FLC Propiedades</a>
+          <a href="desarrollo.html">FLC Desarrollo</a>
+          <a href="intranet.html">Intranet</a>
+          <a href="index.html#contacto">Contacto</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero hero-page">
+        <div class="wrap">
+          <p class="eyebrow">FLC Ingeniería</p>
+          <h1>Intranet</h1>
+          <p class="lead">Proyectos, avance de obra y carpetas de Drive según tu rol.</p>
+        </div>
+      </section>
+
+      <section class="section intranet">
+        <div class="wrap">
+          <form id="login" class="tarjeta-form">
+            <h2>Entrar</h2>
+            <div class="campo">
+              <label for="correo">Correo</label>
+              <input id="correo" name="correo" type="email" autocomplete="username" required />
+            </div>
+            <p id="mensaje-login" class="mensaje" role="status"></p>
+            <button class="btn" type="submit">Entrar</button>
+          </form>
+
+          <div id="panel" hidden>
+            <div class="sesion">
+              <p id="sesion-texto"></p>
+              <button id="salir" class="btn btn-secundario" type="button">Salir</button>
+            </div>
+            <div id="pestanias" class="pestanias" role="tablist" aria-label="Módulos"></div>
+            <div class="acciones-form">
+              <button id="abrir-alta" class="btn" type="button">Nuevo proyecto</button>
+              <p id="mensaje-panel" class="mensaje" role="status"></p>
+            </div>
+            <form id="alta" class="tarjeta-form" hidden>
+              <h2 id="alta-titulo">Nuevo proyecto</h2>
+              <div id="campos-electricidad" class="rejilla-form">
+                <div class="campo campo-ancho">
+                  <label for="nombre_circuito">Nombre del circuito</label>
+                  <input id="nombre_circuito" name="nombre_circuito" required />
+                </div>
+                <div class="campo">
+                  <label for="tipo_servicio">Tipo de servicio</label>
+                  <input id="tipo_servicio" name="tipo_servicio" />
+                </div>
+                <div class="campo">
+                  <label for="cliente_sector">Cliente o sector</label>
+                  <input id="cliente_sector" name="cliente_sector" />
+                </div>
+                <div class="campo">
+                  <label for="estado-electricidad">Estado</label>
+                  <select id="estado-electricidad" name="estado">
+                    <option>En obra</option>
+                    <option>En espera</option>
+                    <option>Finalizado</option>
+                  </select>
+                </div>
+                <div class="campo">
+                  <label for="latitud-electricidad">Latitud</label>
+                  <input id="latitud-electricidad" name="latitud" inputmode="decimal" />
+                </div>
+                <div class="campo">
+                  <label for="longitud-electricidad">Longitud</label>
+                  <input id="longitud-electricidad" name="longitud" inputmode="decimal" />
+                </div>
+                <div class="campo campo-ancho">
+                  <label for="imagen_url-electricidad">Imagen (URL)</label>
+                  <input id="imagen_url-electricidad" name="imagen_url" type="url" />
+                </div>
+                <div class="campo campo-ancho">
+                  <label for="descripcion-electricidad">Descripción</label>
+                  <textarea id="descripcion-electricidad" name="descripcion" rows="3"></textarea>
+                </div>
+              </div>
+              <div id="campos-propiedades" class="rejilla-form" hidden>
+                <div class="campo campo-ancho">
+                  <label for="titulo">Título</label>
+                  <input id="titulo" name="titulo" />
+                </div>
+                <div class="campo">
+                  <label for="tipo">Tipo</label>
+                  <input id="tipo" name="tipo" />
+                </div>
+                <div class="campo">
+                  <label for="precio_uf">Precio (UF)</label>
+                  <input id="precio_uf" name="precio_uf" inputmode="decimal" />
+                </div>
+                <div class="campo">
+                  <label for="superficie_m2">Superficie (m²)</label>
+                  <input id="superficie_m2" name="superficie_m2" inputmode="decimal" />
+                </div>
+                <div class="campo">
+                  <label for="estado-propiedades">Estado</label>
+                  <select id="estado-propiedades" name="estado">
+                    <option>Disponible</option>
+                    <option>Reservada</option>
+                    <option>Vendida</option>
+                  </select>
+                </div>
+                <div class="campo">
+                  <label for="latitud-propiedades">Latitud</label>
+                  <input id="latitud-propiedades" name="latitud" inputmode="decimal" />
+                </div>
+                <div class="campo">
+                  <label for="longitud-propiedades">Longitud</label>
+                  <input id="longitud-propiedades" name="longitud" inputmode="decimal" />
+                </div>
+                <div class="campo">
+                  <label for="factibilidad_electrica">Factibilidad eléctrica</label>
+                  <input id="factibilidad_electrica" name="factibilidad_electrica" />
+                </div>
+                <div class="campo">
+                  <label for="factibilidad_agua">Factibilidad de agua</label>
+                  <input id="factibilidad_agua" name="factibilidad_agua" />
+                </div>
+                <div class="campo campo-ancho">
+                  <label for="imagen_url-propiedades">Imagen (URL)</label>
+                  <input id="imagen_url-propiedades" name="imagen_url" type="url" />
+                </div>
+                <div class="campo campo-ancho">
+                  <label for="descripcion-propiedades">Descripción</label>
+                  <textarea id="descripcion-propiedades" name="descripcion" rows="3"></textarea>
+                </div>
+              </div>
+              <div class="acciones-form">
+                <button class="btn" type="submit">Registrar</button>
+                <button id="cancelar-alta" class="btn btn-secundario" type="button">Cancelar</button>
+              </div>
+            </form>
+            <div id="listado" class="grilla-proyectos"></div>
+            <p id="vacio" class="vacio" hidden>No hay proyectos en este módulo.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="detalle" class="detalle-dialog">
+      <div class="detalle-cuerpo">
+        <div class="detalle-cabecera">
+          <div>
+            <p id="detalle-modulo" class="eyebrow"></p>
+            <h2 id="detalle-titulo"></h2>
+          </div>
+          <button id="cerrar-detalle" class="btn btn-secundario" type="button">Cerrar</button>
+        </div>
+        <div id="detalle-resumen" class="detalle-resumen"></div>
+        <div id="detalle-extra"></div>
+        <p id="detalle-carpeta" class="detalle-carpeta"></p>
+      </div>
+    </dialog>
+
+    <footer class="site-footer">
+      <div class="wrap footer-inner">
+        <p>FLC Ingeniería</p>
+        <a href="index.html#contacto">Contacto</a>
+      </div>
+    </footer>
+
+    <script src="js/intranet-config.js"></script>
+    <script src="js/intranet.js"></script>
+  </body>
+</html>

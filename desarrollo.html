@@ -22,6 +22,7 @@
           <a href="electricidad.html">FLC Electricidad</a>
           <a href="propiedades.html">FLC Propiedades</a>
           <a href="desarrollo.html">FLC Desarrollo</a>
+          <a href="intranet.html">Intranet</a>
           <a href="index.html#contacto">Contacto</a>
         </nav>
       </div>
@@ -43,37 +44,10 @@
           <div class="intro">
             <p class="eyebrow">Proyectos</p>
             <h2>En construcción</h2>
-            <p>
-              La ficha de cada producto se puede alimentar después con la pestaña
-              FLC Desarrollo del Google Sheet.
-            </p>
+            <p>Cada ficha sale del catálogo público.</p>
           </div>
-          <div class="grid-2">
-            <article class="card">
-              <span class="badge badge-desarrollo">En desarrollo</span>
-              <h3>Fuchiko</h3>
-              <p>
-                Proyecto web del showroom. Un espacio para contar el producto y
-                seguir su avance con el mismo lenguaje visual de FLC.
-              </p>
-            </article>
-            <article class="card">
-              <span class="badge badge-desarrollo">En desarrollo</span>
-              <h3>NODO</h3>
-              <p>
-                Punto de encuentro entre ingeniería y software. La pieza que
-                conecta datos de obra, territorio y productos digitales.
-              </p>
-            </article>
-            <article class="card">
-              <span class="badge badge-futuro">Próximo</span>
-              <h3>Siguiente pieza</h3>
-              <p>
-                Espacio reservado para el próximo proyecto del showroom, cuando
-                salga de la planilla.
-              </p>
-            </article>
-          </div>
+          <div id="fichas-desarrollo" class="grid-2"></div>
+          <p id="nota-desarrollo" class="nota">Leyendo el catálogo…</p>
         </div>
       </section>
     </main>
@@ -85,6 +59,7 @@
       </div>
     </footer>
 
-    <script src="js/main.js"></script>
+    <script src="js/intranet-config.js"></script>
+    <script src="js/main.js?v=5"></script>
   </body>
 </html>

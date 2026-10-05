@@ -22,18 +22,64 @@ document.querySelectorAll(".nav a").forEach((enlace) => {
 });
 
 const contenedorMapa = document.getElementById("mapa");
-const HOJA_ID = "1VJmhwBhxQ1FA1zznP4lPfSvAcH8S3F6xUhazVTxLkUE";
 const CLAVES_LAT = ["lat", "latitud", "latitude", "y"];
 const CLAVES_LNG = ["lng", "lon", "long", "longitud", "longitude", "x"];
-const CLAVES_NOMBRE = ["nombre", "name", "proyecto", "titulo", "parcela", "lote", "lugar", "obra"];
-
-function textoPlano(valor) {
-  return String(valor ?? "")
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase()
-    .trim();
-}
+const CLAVES_NOMBRE = ["nombre_circuito", "nombre", "name", "proyecto", "titulo", "parcela", "lote", "lugar", "obra"];
+const CLAVES_ARCHIVO = ["imagen_url", "imagen", "image", "foto", "archivo", "archivos", "url"];
+const CLAVES_OCULTAS = [
+  "id",
+  "id_proyecto",
+  "id_propiedad",
+  "lat",
+  "latitud",
+  "lng",
+  "lon",
+  "long",
+  "longitud",
+  "reportado_por",
+  ...CLAVES_ARCHIVO,
+];
+const ETIQUETAS_PUBLICAS = {
+  nombre_circuito: "Circuito",
+  tipo_servicio: "Servicio",
+  cliente_sector: "Sector",
+  estado: "Estado",
+  descripcion: "Descripción",
+  titulo: "Título",
+  tipo: "Tipo",
+  precio_uf: "Precio (UF)",
+  superficie_m2: "Superficie (m²)",
+  factibilidad_electrica: "Factibilidad eléctrica",
+  factibilidad_agua: "Factibilidad de agua",
+  nombre: "Nombre",
+  descripcion_corta: "Descripción",
+  tecnologias: "Tecnologías",
+};
+const CLAVES_PUBLICAS = {
+  electricidad: [
+    "nombre_circuito",
+    "tipo_servicio",
+    "cliente_sector",
+    "latitud",
+    "longitud",
+    "estado",
+    "imagen_url",
+    "descripcion",
+  ],
+  propiedades: [
+    "titulo",
+    "tipo",
+    "precio_uf",
+    "superficie_m2",
+    "estado",
+    "latitud",
+    "longitud",
+    "factibilidad_electrica",
+    "factibilidad_agua",
+    "imagen_url",
+    "descripcion",
+  ],
+};
 
 function escapar(valor) {
   return String(valor ?? "")
@@ -50,69 +96,35 @@ function aNumero(valor) {
   return Number.isFinite(numero) ? numero : null;
 }
 
-function cargarHoja(nombre) {
-  return new Promise((resolve, reject) => {
-    const callback = "flcHoja_" + Date.now();
-    const script = document.createElement("script");
-    let cerrado = false;
-
-    const cerrar = () => {
-      if (cerrado) return;
-      cerrado = true;
-      clearTimeout(tiempo);
-      delete window[callback];
-      script.remove();
-    };
-
-    const tiempo = setTimeout(() => {
-      cerrar();
-      reject(new Error("tiempo"));
-    }, 8000);
-
-    window[callback] = (respuesta) => {
-      cerrar();
-      if (!respuesta || respuesta.status !== "ok" || !respuesta.table) {
-        reject(new Error("hoja"));
-        return;
-      }
-      resolve(respuesta.table);
-    };
-
-    script.onerror = () => {
-      cerrar();
-      reject(new Error("red"));
-    };
-
-    script.src =
-      "https://docs.google.com/spreadsheets/d/" +
-      HOJA_ID +
-      "/gviz/tq?tqx=out:json;responseHandler:" +
-      callback +
-      "&sheet=" +
-      encodeURIComponent(nombre);
-
-    document.head.appendChild(script);
-  });
+function urlCatalogo(modulo) {
+  const base = window.FLC_INTRANET && window.FLC_INTRANET.scriptUrl;
+  if (!base) return "";
+  const url = new URL(base);
+  url.searchParams.set("accion", "catalogoPublico");
+  url.searchParams.set("modulo", modulo);
+  return url.toString();
 }
 
-function filasDeTabla(tabla) {
-  const columnas = (tabla.cols || []).map((columna, indice) => ({
-    indice,
-    clave: textoPlano(columna.label || columna.id || "columna " + (indice + 1)),
-    etiqueta: columna.label || columna.id || "Columna " + (indice + 1),
-  }));
+async function cargarCatalogo(modulo) {
+  const destino = urlCatalogo(modulo);
+  if (!destino) throw new Error("url");
+  const respuesta = await fetch(destino);
+  const datos = await respuesta.json();
+  if (!datos || !datos.ok) throw new Error((datos && datos.error) || "catalogo");
+  return datos.fichas || [];
+}
 
-  return (tabla.rows || []).map((fila) => {
-    const registro = {};
-    columnas.forEach((columna) => {
-      const celda = fila.c ? fila.c[columna.indice] : null;
-      const valor = celda ? (celda.f ?? celda.v) : "";
-      registro[columna.clave] = valor ?? "";
-      registro._etiquetas = registro._etiquetas || {};
-      registro._etiquetas[columna.clave] = columna.etiqueta;
-    });
-    return registro;
+function fichaPublica(registro, modulo) {
+  const permitidas = CLAVES_PUBLICAS[modulo] || Object.keys(registro);
+  const limpia = {};
+  permitidas.forEach((clave) => {
+    if (registro[clave] != null && registro[clave] !== "") limpia[clave] = registro[clave];
   });
+  const etiquetas = {};
+  Object.keys(limpia).forEach((clave) => {
+    etiquetas[clave] = ETIQUETAS_PUBLICAS[clave] || clave;
+  });
+  return Object.assign(limpia, { _etiquetas: etiquetas });
 }
 
 function buscarClave(registro, claves) {
@@ -151,9 +163,37 @@ function tituloDe(registro) {
   return primerTexto ? primerTexto[1] : "Punto";
 }
 
+function esEnlace(valor) {
+  return typeof valor === "string" && /^https?:\/\//i.test(valor.trim());
+}
+
+function esImagen(url) {
+  return (
+    /\.(jpe?g|png|webp|gif|avif)(\?|$)/i.test(url) ||
+    url.includes("images.unsplash.com") ||
+    url.includes("googleusercontent") ||
+    url.includes("drive.google.com/uc")
+  );
+}
+
+function urlPorClaves(registro, claves) {
+  const clave = buscarClave(registro, claves);
+  const valor = clave ? String(registro[clave]).trim() : "";
+  return esEnlace(valor) ? valor : "";
+}
+
+function urlImagen(registro) {
+  const url = urlPorClaves(registro, ["imagen_url", "imagen", "image", "foto"]);
+  return url && esImagen(url) ? url : "";
+}
+
+function urlArchivo(registro) {
+  return urlPorClaves(registro, ["archivos", "archivo", "imagen_url", "imagen", "image", "foto", "url"]);
+}
+
 function detalleDe(registro) {
   return Object.entries(registro)
-    .filter(([clave, valor]) => clave !== "_etiquetas" && valor !== "" && valor != null)
+    .filter(([clave, valor]) => clave !== "_etiquetas" && !CLAVES_OCULTAS.includes(clave) && valor !== "" && valor != null && !esEnlace(valor))
     .map(([clave, valor]) => {
       const etiqueta = registro._etiquetas[clave] || clave;
       return "<div><strong>" + escapar(etiqueta) + ":</strong> " + escapar(valor) + "</div>";
@@ -161,22 +201,45 @@ function detalleDe(registro) {
     .join("");
 }
 
+function enlaceArchivo(url) {
+  if (!url) return "";
+  return (
+    '<a class="ver-archivos" href="' +
+    escapar(url) +
+    '" target="_blank" rel="noopener noreferrer">Ver archivos</a>'
+  );
+}
+
+function popupDe(registro, titulo) {
+  const archivo = urlArchivo(registro);
+  const imagen = urlImagen(registro);
+  const fondo = imagen ? ' style="background-image:url(\'' + escapar(imagen) + '\')"' : "";
+  return (
+    '<div class="popup-punto"' +
+    fondo +
+    '><div class="popup-punto-contenido"><strong>' +
+    escapar(titulo) +
+    "</strong>" +
+    detalleDe(registro) +
+    enlaceArchivo(archivo) +
+    "</div></div>"
+  );
+}
+
 function escribirNota(mensaje) {
   const nota = document.querySelector(".nota");
   if (nota) nota.textContent = mensaje;
 }
 
-async function pintarPuntos(mapa, nombreHoja) {
+async function pintarPuntos(mapa, modulo) {
   const lista = document.getElementById("puntos");
-  escribirNota("Leyendo la pestaña " + nombreHoja + "…");
+  escribirNota("Leyendo el catálogo…");
 
   let filas;
   try {
-    filas = filasDeTabla(await cargarHoja(nombreHoja));
+    filas = (await cargarCatalogo(modulo)).map((fila) => fichaPublica(fila, modulo));
   } catch (error) {
-    escribirNota(
-      "No pude leer la planilla. El enlace sigue pidiendo inicio de sesión en Google. En Compartir, elige «Cualquier persona con el enlace»."
-    );
+    escribirNota("No pude leer el catálogo público. Publica la versión nueva del Apps Script.");
     return;
   }
 
@@ -185,12 +248,7 @@ async function pintarPuntos(mapa, nombreHoja) {
     .filter((punto) => punto.coordenadas);
 
   if (!puntos.length) {
-    const columnas = filas[0] ? Object.keys(filas[0]._etiquetas || {}).join(", ") : "ninguna";
-    escribirNota(
-      "La pestaña no tiene coordenadas reconocibles. Usa columnas Latitud y Longitud. Columnas encontradas: " +
-        columnas +
-        "."
-    );
+    escribirNota("El catálogo no tiene coordenadas para mostrar en el mapa.");
     return;
   }
 
@@ -199,14 +257,22 @@ async function pintarPuntos(mapa, nombreHoja) {
 
   puntos.forEach((punto) => {
     const titulo = tituloDe(punto.fila);
+    const archivo = urlArchivo(punto.fila);
+    const imagen = urlImagen(punto.fila);
     const marcador = L.marker([punto.coordenadas.lat, punto.coordenadas.lng])
       .addTo(mapa)
-      .bindPopup("<strong>" + escapar(titulo) + "</strong>" + detalleDe(punto.fila));
+      .bindPopup(popupDe(punto.fila, titulo), { className: "popup-flc", maxWidth: 260 });
 
     limites.push([punto.coordenadas.lat, punto.coordenadas.lng]);
 
     if (!lista) return;
     const item = document.createElement("li");
+    item.className = "punto";
+    if (imagen) item.style.backgroundImage = "url('" + imagen.replaceAll("'", "%27") + "')";
+
+    const contenido = document.createElement("div");
+    contenido.className = "punto-contenido";
+
     const boton = document.createElement("button");
     boton.type = "button";
     boton.textContent = titulo;
@@ -214,7 +280,19 @@ async function pintarPuntos(mapa, nombreHoja) {
       mapa.setView([punto.coordenadas.lat, punto.coordenadas.lng], 14);
       marcador.openPopup();
     });
-    item.append(boton);
+    contenido.append(boton);
+
+    if (archivo) {
+      const enlace = document.createElement("a");
+      enlace.className = "ver-archivos";
+      enlace.href = archivo;
+      enlace.target = "_blank";
+      enlace.rel = "noopener noreferrer";
+      enlace.textContent = "Ver archivos";
+      contenido.append(enlace);
+    }
+
+    item.append(contenido);
     lista.append(item);
   });
 
@@ -224,7 +302,71 @@ async function pintarPuntos(mapa, nombreHoja) {
     mapa.fitBounds(limites, { padding: [32, 32] });
   }
 
-  escribirNota(puntos.length + " puntos cargados desde " + nombreHoja + ".");
+  escribirNota(puntos.length + (puntos.length === 1 ? " punto cargado." : " puntos cargados."));
+}
+
+function enlacePublico(url) {
+  const destino = String(url || "").trim();
+  if (!/^https?:\/\//i.test(destino) || destino === "#") return "";
+  return destino;
+}
+
+async function pintarDesarrollo(contenedor) {
+  const nota = document.getElementById("nota-desarrollo");
+  if (nota) nota.textContent = "Leyendo el catálogo…";
+  contenedor.replaceChildren();
+
+  let fichas;
+  try {
+    fichas = await cargarCatalogo("desarrollo");
+  } catch (error) {
+    if (nota) nota.textContent = "No pude leer el catálogo público. Publica la versión nueva del Apps Script.";
+    return;
+  }
+
+  if (!fichas.length) {
+    if (nota) nota.textContent = "El catálogo de desarrollo todavía no tiene fichas.";
+    return;
+  }
+
+  fichas.forEach((ficha) => {
+    const articulo = document.createElement("article");
+    articulo.className = "card";
+
+    const insignia = document.createElement("span");
+    insignia.className = "badge badge-desarrollo";
+    insignia.textContent = ficha.estado || ficha.tipo || "Desarrollo";
+
+    const titulo = document.createElement("h3");
+    titulo.textContent = ficha.nombre || "Proyecto";
+
+    articulo.append(insignia, titulo);
+
+    if (ficha.descripcion_corta) {
+      const textoFicha = document.createElement("p");
+      textoFicha.textContent = ficha.descripcion_corta;
+      articulo.append(textoFicha);
+    }
+    if (ficha.tecnologias) {
+      const tecnologias = document.createElement("p");
+      tecnologias.textContent = ficha.tecnologias;
+      articulo.append(tecnologias);
+    }
+
+    const demo = enlacePublico(ficha.url_demo);
+    if (demo) {
+      const enlace = document.createElement("a");
+      enlace.href = demo;
+      enlace.target = "_blank";
+      enlace.rel = "noopener noreferrer";
+      enlace.textContent = "Ver proyecto";
+      articulo.append(enlace);
+    }
+
+    contenedor.append(articulo);
+  });
+
+  if (nota) nota.textContent = fichas.length + (fichas.length === 1 ? " ficha cargada." : " fichas cargadas.");
 }
 
 if (contenedorMapa && typeof L !== "undefined") {
@@ -239,5 +381,8 @@ if (contenedorMapa && typeof L !== "undefined") {
   ).addTo(mapa);
 
   window.flcMapa = mapa;
-  pintarPuntos(mapa, contenedorMapa.dataset.fuente || "");
+  pintarPuntos(mapa, contenedorMapa.dataset.modulo || "");
 }
+
+const fichasDesarrollo = document.getElementById("fichas-desarrollo");
+if (fichasDesarrollo) pintarDesarrollo(fichasDesarrollo);

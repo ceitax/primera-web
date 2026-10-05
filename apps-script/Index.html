@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <base target="_top" />
+    <meta charset="UTF-8" />
+    <style>
+      body { margin: 0; font-family: "Segoe UI", system-ui, sans-serif; background: #f8fafc; color: #0f172a; }
+      main { width: min(760px, calc(100% - 2rem)); margin: 2rem auto 3rem; }
+      h1 { margin: 0.2rem 0 0.4rem; }
+      .aviso, form { background: #fff; border: 1px solid #e2e8f0; border-radius: 16px; padding: 1.1rem 1.2rem; margin-top: 1rem; }
+      .rejilla, .tramo-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+      label { display: block; font-weight: 700; font-size: 0.9rem; margin-bottom: 0.25rem; }
+      input, select, textarea { width: 100%; box-sizing: border-box; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.6rem 0.7rem; font: inherit; }
+      textarea { min-height: 80px; }
+      .ancho { grid-column: 1 / -1; }
+      fieldset { border: 1px solid #e2e8f0; border-radius: 12px; margin: 0.8rem 0; }
+      button { border: 0; border-radius: 999px; background: #10b981; color: #0f172a; font-weight: 700; padding: 0.65rem 1rem; cursor: pointer; }
+      .pestania { background: #fff; border: 1px solid #e2e8f0; margin-right: 0.4rem; }
+      .pestania[aria-selected="true"] { background: #0f172a; color: #fff; }
+      .error { color: #b45309; }
+      @media (max-width: 700px) { .rejilla, .tramo-campos { grid-template-columns: 1fr; } }
+    </style>
+  </head>
+  <body>
+    <main>
+      <p>FLC Ingeniería</p>
+      <h1>Intranet</h1>
+      <p id="estado">Comprobando tu correo en FLC Accesos…</p>
+      <section id="reportes" hidden>
+        <button class="pestania" id="tab-ele" type="button" aria-selected="true">Electricidad</button>
+        <button class="pestania" id="tab-prop" type="button" aria-selected="false">Parcelas</button>
+        <form id="form-ele">
+          <h2>Circuito</h2>
+          <div class="rejilla">
+            <div><label>Nombre del circuito</label><input name="titulo" required /></div>
+            <div><label>Cliente o sector</label><input name="cliente_sector" /></div>
+            <div><label>Tipo de servicio</label><input name="tipo_servicio" value="Circuito" /></div>
+            <div><label>Estado</label><select name="estado"><option>En obra</option><option>En espera</option><option>Finalizado</option></select></div>
+            <div><label>Latitud</label><input name="latitud" required /></div>
+            <div><label>Longitud</label><input name="longitud" required /></div>
+            <div class="ancho"><label>Nota general</label><textarea name="descripcion"></textarea></div>
+          </div>
+          <fieldset><legend>Tramo 1</legend><div class="tramo-campos"><div class="ancho"><label>Detalle</label><input name="tramo1_detalle" required /></div><div><label>Conductor</label><input name="tramo1_conductor" /></div><div><label>Metros</label><input name="tramo1_metros" /></div></div></fieldset>
+          <fieldset><legend>Tramo 2</legend><div class="tramo-campos"><div class="ancho"><label>Detalle</label><input name="tramo2_detalle" required /></div><div><label>Conductor</label><input name="tramo2_conductor" /></div><div><label>Metros</label><input name="tramo2_metros" /></div></div></fieldset>
+          <fieldset><legend>Tramo 3</legend><div class="tramo-campos"><div class="ancho"><label>Detalle</label><input name="tramo3_detalle" required /></div><div><label>Conductor</label><input name="tramo3_conductor" /></div><div><label>Metros</label><input name="tramo3_metros" /></div></div></fieldset>
+          <fieldset><legend>Tramo 4</legend><div class="tramo-campos"><div class="ancho"><label>Detalle</label><input name="tramo4_detalle" required /></div><div><label>Conductor</label><input name="tramo4_conductor" /></div><div><label>Metros</label><input name="tramo4_metros" /></div></div></fieldset>
+          <label>Fotos, si hay</label><input name="fotos" type="file" accept="image/*" multiple />
+          <p class="msg" id="msg-ele"></p>
+          <button type="submit">Enviar circuito</button>
+        </form>
+        <form id="form-prop" hidden>
+          <h2>Parcela</h2>
+          <div class="rejilla">
+            <div><label>Nombre</label><input name="titulo" required /></div>
+            <div><label>Tipo</label><select name="tipo"><option>Parcela</option><option>Casa</option><option>Terreno</option><option>Terreno industrial</option></select></div>
+            <div><label>Superficie (m²)</label><input name="superficie_m2" required /></div>
+            <div><label>Precio (UF)</label><input name="precio_uf" /></div>
+            <div><label>Estado</label><select name="estado"><option>Disponible</option><option>Reservada</option><option>Vendida</option></select></div>
+            <div><label>Factibilidad eléctrica</label><input name="factibilidad_electrica" /></div>
+            <div><label>Factibilidad de agua</label><input name="factibilidad_agua" /></div>
+            <div><label>Latitud</label><input name="latitud" required /></div>
+            <div><label>Longitud</label><input name="longitud" required /></div>
+            <div class="ancho"><label>Características</label><textarea name="descripcion" required></textarea></div>
+          </div>
+          <label>Fotos</label><input name="fotos" type="file" accept="image/*" multiple required />
+          <p class="msg" id="msg-prop"></p>
+          <button type="submit">Enviar parcela</button>
+        </form>
+      </section>
+    </main>
+    <script>
+      var tabEle = document.getElementById("tab-ele");
+      var tabProp = document.getElementById("tab-prop");
+      tabEle.onclick = function () { elegir(true); };
+      tabProp.onclick = function () { elegir(false); };
+      function elegir(electricidad) {
+        tabEle.setAttribute("aria-selected", electricidad);
+        tabProp.setAttribute("aria-selected", !electricidad);
+        document.getElementById("form-ele").hidden = !electricidad;
+        document.getElementById("form-prop").hidden = electricidad;
+      }
+      document.getElementById("form-ele").onsubmit = function (evento) { enviar(evento, "electricidad"); };
+      document.getElementById("form-prop").onsubmit = function (evento) { enviar(evento, "propiedades"); };
+      google.script.run.withSuccessHandler(function (sesion) {
+        if (!sesion.ok) {
+          document.getElementById("estado").textContent = sesion.correo
+            ? sesion.correo + " no está en FLC Accesos."
+            : "Google no entregó el correo. Autoriza la intranet y vuelve a abrirla.";
+          return;
+        }
+        document.getElementById("estado").textContent = "Sesión de " + sesion.correo;
+        document.getElementById("reportes").hidden = false;
+      }).withFailureHandler(function (error) {
+        document.getElementById("estado").textContent = error.message;
+      }).correoActual();
+      function enviar(evento, tipo) {
+        evento.preventDefault();
+        var formulario = evento.target;
+        var aviso = document.getElementById(tipo === "electricidad" ? "msg-ele" : "msg-prop");
+        var boton = formulario.querySelector("button");
+        boton.disabled = true;
+        aviso.className = "msg";
+        aviso.textContent = "Enviando…";
+        fotosDe(formulario.querySelector("input[type=file]")).then(function (fotos) {
+          if (tipo === "propiedades" && !fotos.length) throw new Error("Adjunta al menos una foto.");
+          var datos = Object.fromEntries(new FormData(formulario).entries());
+          if (tipo === "electricidad") {
+            datos.tramos = [1, 2, 3, 4].map(function (n) {
+              return { detalle: datos["tramo" + n + "_detalle"], conductor: datos["tramo" + n + "_conductor"], metros: datos["tramo" + n + "_metros"] };
+            });
+          }
+          return new Promise(function (resolve, reject) {
+            google.script.run.withSuccessHandler(resolve).withFailureHandler(reject).enviarReporte({ tipo: tipo, datos: datos, fotos: fotos });
+          });
+        }).then(function (resultado) {
+          formulario.reset();
+          aviso.textContent = "Listo. Quedó guardado como " + resultado.id + ".";
+        }).catch(function (error) {
+          aviso.className = "msg error";
+          aviso.textContent = error.message || String(error);
+        }).finally(function () { boton.disabled = false; });
+      }
+      function fotosDe(input) {
+        var archivos = Array.prototype.slice.call(input.files, 0, 6);
+        return archivos.reduce(function (cadena, archivo) {
+          return cadena.then(function (lista) {
+            if (archivo.type.indexOf("image/") !== 0) throw new Error("Solo se pueden adjuntar fotos.");
+            return comprimir(archivo).then(function (foto) { lista.push(foto); return lista; });
+          });
+        }, Promise.resolve([]));
+      }
+      function comprimir(archivo) {
+        return new Promise(function (resolve, reject) {
+          var imagen = new Image();
+          var url = URL.createObjectURL(archivo);
+          imagen.onload = function () {
+            var escala = Math.min(1, 1400 / Math.max(imagen.width, imagen.height));
+            var lienzo = document.createElement("canvas");
+            lienzo.width = Math.max(1, Math.round(imagen.width * escala));
+            lienzo.height = Math.max(1, Math.round(imagen.height * escala));
+            lienzo.getContext("2d").drawImage(imagen, 0, 0, lienzo.width, lienzo.height);
+            URL.revokeObjectURL(url);
+            lienzo.toBlob(function (blob) {
+              var lector = new FileReader();
+              lector.onload = function () {
+                resolve({ nombre: archivo.name.replace(/\.\w+$/, "") + ".jpg", mime: "image/jpeg", base64: String(lector.result).split(",")[1] });
+              };
+              lector.readAsDataURL(blob);
+            }, "image/jpeg", 0.7);
+          };
+          imagen.onerror = function () { reject(new Error("No pude abrir una foto.")); };
+          imagen.src = url;
+        });
+      }
+    </script>
+  </body>
+</html>
