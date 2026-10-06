@@ -97,12 +97,18 @@ function aNumero(valor) {
 }
 
 function urlCatalogo(modulo) {
-  const base = window.FLC_INTRANET && window.FLC_INTRANET.scriptUrl;
+  const config = window.FLC_INTRANET || {};
+  if (config.scriptUrl) {
+    return config.scriptUrl.replace(/\/$/, "") + "?accion=catalogoPublico&modulo=" + encodeURIComponent(modulo);
+  }
+  const base = config.apiUrl;
   if (!base) return "";
-  const url = new URL(base);
-  url.searchParams.set("accion", "catalogoPublico");
-  url.searchParams.set("modulo", modulo);
-  return url.toString();
+  const rutas = {
+    electricidad: "/api/electricidad/publico",
+    propiedades: "/api/propiedades/publico",
+    desarrollo: "/api/desarrollo/publico",
+  };
+  return base.replace(/\/$/, "") + (rutas[modulo] || "");
 }
 
 async function cargarCatalogo(modulo) {
@@ -239,7 +245,7 @@ async function pintarPuntos(mapa, modulo) {
   try {
     filas = (await cargarCatalogo(modulo)).map((fila) => fichaPublica(fila, modulo));
   } catch (error) {
-    escribirNota("No pude leer el catálogo público. Publica la versión nueva del Apps Script.");
+    escribirNota("No pude leer el catálogo. Publica la nueva versión del script de Google y vuelve a cargar.");
     return;
   }
 
@@ -320,7 +326,7 @@ async function pintarDesarrollo(contenedor) {
   try {
     fichas = await cargarCatalogo("desarrollo");
   } catch (error) {
-    if (nota) nota.textContent = "No pude leer el catálogo público. Publica la versión nueva del Apps Script.";
+    if (nota) nota.textContent = "No pude leer el catálogo. Publica la nueva versión del script de Google y vuelve a cargar.";
     return;
   }
 
@@ -384,5 +390,38 @@ if (contenedorMapa && typeof L !== "undefined") {
   pintarPuntos(mapa, contenedorMapa.dataset.modulo || "");
 }
 
+function pintarEquipo(contenedor) {
+  const nota = document.getElementById("nota-equipo");
+  if (nota) nota.textContent = "Leyendo el equipo…";
+  contenedor.replaceChildren();
+  cargarCatalogo("equipo")
+    .then(function (fichas) {
+      fichas.forEach(function (persona) {
+        const articulo = document.createElement("article");
+        articulo.className = "card";
+        const titulo = document.createElement("h3");
+        titulo.textContent = persona.nombre || "Integrante";
+        articulo.append(titulo);
+        if (persona.cargo_rol) {
+          const cargo = document.createElement("p");
+          cargo.textContent = persona.cargo_rol;
+          articulo.append(cargo);
+        }
+        if (persona.descripcion) {
+          const textoPersona = document.createElement("p");
+          textoPersona.textContent = persona.descripcion;
+          articulo.append(textoPersona);
+        }
+        contenedor.append(articulo);
+      });
+      if (nota) nota.textContent = fichas.length ? "" : "El equipo todavía no está cargado.";
+    })
+    .catch(function () {
+      if (nota) nota.textContent = "No pude leer el equipo. Publica la nueva versión del script de Google.";
+    });
+}
+
 const fichasDesarrollo = document.getElementById("fichas-desarrollo");
+const fichasEquipo = document.getElementById("fichas-equipo");
+if (fichasEquipo) pintarEquipo(fichasEquipo);
 if (fichasDesarrollo) pintarDesarrollo(fichasDesarrollo);

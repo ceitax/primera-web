@@ -25,19 +25,88 @@ function mensaje(id, texto, esError) {
   nodo.classList.toggle("error", Boolean(esError));
 }
 
-function esperar(ms) {
-  return new Promise((resolver) => setTimeout(resolver, ms));
-}
-
 function errorLegible(error) {
   if (error && error.message === "Failed to fetch") {
-    return "No pude contactar la intranet. Revisa la conexión o publica la versión nueva del Apps Script.";
+    return "No pude contactar Google. Publica la nueva versión del script y vuelve a intentar.";
   }
   return (error && error.message) || "No se pudo completar la consulta.";
 }
 
+function baseApi() {
+  return (config.apiUrl || "").replace(/\/$/, "");
+}
+
+function scriptBase() {
+  return (config.scriptUrl || "").replace(/\/$/, "");
+}
+
+async function apiGoogle(ruta, opciones) {
+  const metodo = ((opciones && opciones.method) || "GET").toUpperCase();
+  const cuerpo = opciones && opciones.body ? JSON.parse(opciones.body) : {};
+  const params = new URLSearchParams();
+  if (sesion && sesion.correo) params.set("correo", sesion.correo);
+
+  const checklist = ruta.match(/^\/api\/electricidad\/proyecto\/([^/]+)\/checklist\/([^/]+)$/);
+  const ficha = ruta.match(/^\/api\/([^/]+)\/proyecto\/([^/]+)$/);
+  const lista = ruta.match(/^\/api\/([^/]+)\/proyectos$/);
+
+  if (ruta === "/api/login") {
+    params.set("accion", "sesion");
+    params.set("correo", cuerpo.correo || "");
+    params.set("clave", cuerpo.clave || "");
+    if (cuerpo.clave_nueva) params.set("clave_nueva", cuerpo.clave_nueva);
+  } else if (checklist) {
+    params.set("accion", "checklist");
+    params.set("modulo", "electricidad");
+    params.set("id", decodeURIComponent(checklist[1]));
+    params.set("id_item", decodeURIComponent(checklist[2]));
+    params.set("completado", String(cuerpo.completado));
+  } else if (lista && metodo === "POST") {
+    params.set("accion", "crear");
+    params.set("modulo", lista[1]);
+    Object.keys(cuerpo).forEach((clave) => {
+      if (cuerpo[clave] !== "") params.set(clave, cuerpo[clave]);
+    });
+  } else if (ficha) {
+    params.set("accion", "detalle");
+    params.set("modulo", ficha[1]);
+    params.set("id", decodeURIComponent(ficha[2]));
+  } else if (lista) {
+    params.set("accion", "listar");
+    params.set("modulo", lista[1]);
+  } else {
+    throw new Error("Consulta no reconocida.");
+  }
+
+  const respuesta = await fetch(scriptBase() + "?" + params.toString());
+  let datos = {};
+  try {
+    datos = await respuesta.json();
+  } catch (error) {
+    throw new Error("Google no respondió con datos. Publica la nueva versión del script.");
+  }
+  if (!respuesta.ok || datos.ok === false) throw new Error(datos.error || "No se pudo completar la consulta.");
+  return datos;
+}
+
+async function api(ruta, opciones) {
+  if (scriptBase()) return apiGoogle(ruta, opciones);
+  if (!baseApi()) throw new Error("Falta la URL de la API.");
+  const headers = Object.assign({ "Content-Type": "application/json" }, (opciones && opciones.headers) || {});
+  if (sesion && sesion.token) headers.Authorization = "Bearer " + sesion.token;
+  const respuesta = await fetch(baseApi() + ruta, Object.assign({}, opciones, { headers: headers }));
+  let datos = {};
+  try {
+    datos = await respuesta.json();
+  } catch (error) {
+    throw new Error("La intranet no respondió con datos.");
+  }
+  if (!respuesta.ok || datos.ok === false) throw new Error(datos.error || datos.detail || "No se pudo completar la consulta.");
+  return datos;
+}
+
 function idDe(registro) {
-  return String(registro.id_proyecto || registro.id_propiedad || "");
+  return String(registro.id_proyecto || registro.id || registro.id_propiedad || "");
 }
 
 function tituloDe(registro) {
@@ -48,24 +117,9 @@ function texto(valor) {
   return valor == null || valor === "" ? "—" : String(valor);
 }
 
-async function pedir(params) {
-  if (!config.scriptUrl) throw new Error("Falta la URL del Apps Script.");
-  const url = new URL(config.scriptUrl);
-  Object.entries(params).forEach(([clave, valor]) => url.searchParams.set(clave, valor));
-  const respuesta = await fetch(url.toString());
-  const crudo = await respuesta.text();
-  let datos;
-  try {
-    datos = JSON.parse(crudo);
-  } catch (error) {
-    throw new Error("La intranet no respondió con datos. Publica la versión nueva del Apps Script.");
-  }
-  if (!datos.ok) throw new Error(datos.error || "No se pudo completar la consulta.");
-  return datos;
-}
-
 function guardarSesion(datos) {
   sesion = {
+    token: datos.token,
     correo: datos.correo,
     nombre: datos.nombre,
     rol: datos.rol,
@@ -77,6 +131,7 @@ function guardarSesion(datos) {
 function pintarSesion() {
   document.getElementById("sesion-texto").textContent =
     (sesion.nombre || sesion.correo) + " · " + sesion.rol;
+  mostrar(document.getElementById("ordenar-google"), String(sesion.rol || "").toLowerCase() === "admin");
   mostrar(login, false);
   mostrar(panel, true);
   pintarPestanias();
@@ -126,9 +181,23 @@ async function elegirModulo(modulo) {
   }
 }
 
+async function marcarChecklist(idProyecto, idItem, listo) {
+  try {
+    await api("/api/electricidad/proyecto/" + encodeURIComponent(idProyecto) + "/checklist/" + encodeURIComponent(idItem), {
+      method: "PATCH",
+      body: JSON.stringify({ completado: listo }),
+    });
+    if (detalle.open) detalle.close();
+    const tarjeta = proyectos.find((registro) => idDe(registro) === idProyecto);
+    if (tarjeta) await abrirDetalle(tarjeta);
+  } catch (error) {
+    mensaje("mensaje-panel", errorLegible(error), true);
+  }
+}
+
 async function cargarListado() {
   mensaje("mensaje-panel", "Cargando proyectos…", false);
-  const datos = await pedir({ accion: "listar", correo: sesion.correo, modulo: moduloActivo });
+  const datos = await api("/api/" + moduloActivo + "/proyectos");
   proyectos = datos.proyectos || [];
   pintarTarjetas();
   mensaje("mensaje-panel", "", false);
@@ -206,12 +275,7 @@ function completadoLegible(valor) {
 
 async function abrirDetalle(registro) {
   mensaje("mensaje-panel", "", false);
-  const datos = await pedir({
-    accion: "detalle",
-    correo: sesion.correo,
-    modulo: moduloActivo,
-    id: idDe(registro),
-  });
+  const datos = await api("/api/" + moduloActivo + "/proyecto/" + encodeURIComponent(idDe(registro)));
   const ficha = datos.proyecto || {};
   document.getElementById("detalle-modulo").textContent = ETIQUETAS[moduloActivo] || moduloActivo;
   document.getElementById("detalle-titulo").textContent = tituloDe(ficha);
@@ -239,7 +303,7 @@ async function abrirDetalle(registro) {
       linea("Factibilidad de agua", ficha.factibilidad_agua),
       linea("Estado", ficha.estado),
       linea("Descripción", ficha.descripcion),
-      linea("Responsable", ficha.responsable),
+      linea("Responsable", ficha.contacto || ficha.responsable),
       linea("Latitud", ficha.latitud),
       linea("Longitud", ficha.longitud)
     );
@@ -253,7 +317,15 @@ async function abrirDetalle(registro) {
   if (moduloActivo === "electricidad") {
     const tareas = (datos.checklist || []).map((item) => {
       const fila = document.createElement("li");
-      fila.textContent = item.tarea + (completadoLegible(item.completado) ? " · Listo" : " · Pendiente");
+      const listo = completadoLegible(item.completado);
+      const carpetaTarea = item.subcarpeta_destino ? " · " + item.subcarpeta_destino : "";
+      fila.textContent = item.tarea + carpetaTarea + (listo ? " · Listo" : " · Pendiente");
+      const boton = document.createElement("button");
+      boton.type = "button";
+      boton.className = "btn btn-secundario";
+      boton.textContent = listo ? "Marcar pendiente" : "Marcar listo";
+      boton.addEventListener("click", () => marcarChecklist(idDe(ficha), item.id_item, !listo));
+      fila.append(" ", boton);
       return fila;
     });
     const materiales = (datos.inventario || []).map((item) => {
@@ -293,35 +365,16 @@ function datosDeAlta() {
 async function registrar(evento) {
   evento.preventDefault();
   const boton = alta.querySelector("button[type=submit]");
-  const antes = new Set(proyectos.map(idDe));
   boton.disabled = true;
   mensaje("mensaje-panel", "Guardando y creando la carpeta…", false);
   try {
-    await fetch(config.scriptUrl, {
+    await api("/api/" + moduloActivo + "/proyectos", {
       method: "POST",
-      mode: "no-cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
-      body: JSON.stringify({
-        accion: "crear",
-        correo: sesion.correo,
-        modulo: moduloActivo,
-        datos: datosDeAlta(),
-      }),
+      body: JSON.stringify(datosDeAlta()),
     });
-    let aparecio = false;
-    for (let intento = 0; intento < 8 && !aparecio; intento += 1) {
-      await esperar(2000);
-      const datos = await pedir({ accion: "listar", correo: sesion.correo, modulo: moduloActivo });
-      proyectos = datos.proyectos || [];
-      aparecio = proyectos.some((registro) => !antes.has(idDe(registro)));
-    }
-    pintarTarjetas();
-    if (!aparecio) {
-      mensaje("mensaje-panel", "El alta se envió. Si la tarjeta no aparece, espera un momento y vuelve a abrir el módulo.", false);
-      return;
-    }
     alta.reset();
     mostrar(alta, false);
+    await cargarListado();
     mensaje("mensaje-panel", "Proyecto registrado.", false);
   } catch (error) {
     mensaje("mensaje-panel", errorLegible(error), true);
@@ -334,10 +387,15 @@ async function entrar(evento) {
   evento.preventDefault();
   const boton = login.querySelector("button[type=submit]");
   const correo = document.getElementById("correo").value.trim();
+  const clave = document.getElementById("clave").value;
+  const claveNueva = document.getElementById("clave-nueva").value;
   boton.disabled = true;
   mensaje("mensaje-login", "Comprobando acceso…", false);
   try {
-    const datos = await pedir({ accion: "sesion", correo: correo });
+    const datos = await api("/api/login", {
+      method: "POST",
+      body: JSON.stringify({ correo: correo, clave: clave, clave_nueva: claveNueva }),
+    });
     if (!datos.modulos || !datos.modulos.length) throw new Error("Ese rol no tiene módulos asignados.");
     guardarSesion(datos);
     moduloActivo = sesion.modulos[0];
@@ -371,7 +429,27 @@ function salir() {
   mensaje("mensaje-panel", "", false);
 }
 
+async function ordenarEnGoogle() {
+  if (!sesion || String(sesion.rol).toLowerCase() !== "admin") return;
+  const seguro = window.confirm(
+    "Esto deja los proyectos en ELE-001, ELE-002…, renombra cada carpeta a [código] Nombre y alinea checklist e inventario. No borra archivos."
+  );
+  if (!seguro) return;
+  mensaje("mensaje-panel", "Ordenando códigos y carpetas en Google…", false);
+  try {
+    const params = new URLSearchParams({ accion: "reordenar", correo: sesion.correo });
+    const respuesta = await fetch(scriptBase() + "?" + params.toString());
+    const datos = await respuesta.json();
+    if (!datos.ok) throw new Error(datos.error || "No se pudo ordenar.");
+    await cargarListado();
+    mensaje("mensaje-panel", datos.mensaje || "Proyectos ordenados.", false);
+  } catch (error) {
+    mensaje("mensaje-panel", errorLegible(error), true);
+  }
+}
+
 login.addEventListener("submit", entrar);
+document.getElementById("ordenar-google").addEventListener("click", ordenarEnGoogle);
 document.getElementById("salir").addEventListener("click", salir);
 document.getElementById("abrir-alta").addEventListener("click", () => {
   prepararAlta();
@@ -398,8 +476,16 @@ const guardada = sessionStorage.getItem(CLAVE_SESION);
 if (guardada) {
   try {
     const previa = JSON.parse(guardada);
+    if (!previa.token) throw new Error("sesion vieja");
     document.getElementById("correo").value = previa.correo || "";
-    entrar({ preventDefault() {} });
+    sesion = previa;
+    moduloActivo = (sesion.modulos && sesion.modulos[0]) || "";
+    pintarSesion();
+    cargarListado().catch((error) => {
+      proyectos = [];
+      pintarTarjetas();
+      mensaje("mensaje-panel", errorLegible(error), true);
+    });
   } catch (error) {
     sessionStorage.removeItem(CLAVE_SESION);
   }

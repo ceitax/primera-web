@@ -42,6 +42,14 @@
               <label for="correo">Correo</label>
               <input id="correo" name="correo" type="email" autocomplete="username" required />
             </div>
+            <div class="campo">
+              <label for="clave">Clave</label>
+              <input id="clave" name="clave" type="password" autocomplete="current-password" required />
+            </div>
+            <div class="campo">
+              <label for="clave-nueva">Nueva clave, solo en el primer ingreso</label>
+              <input id="clave-nueva" name="clave_nueva" type="password" autocomplete="new-password" />
+            </div>
             <p id="mensaje-login" class="mensaje" role="status"></p>
             <button class="btn" type="submit">Entrar</button>
           </form>
@@ -54,6 +62,7 @@
             <div id="pestanias" class="pestanias" role="tablist" aria-label="Módulos"></div>
             <div class="acciones-form">
               <button id="abrir-alta" class="btn" type="button">Nuevo proyecto</button>
+              <button id="ordenar-google" class="btn btn-secundario" type="button" hidden>Ordenar en Google</button>
               <p id="mensaje-panel" class="mensaje" role="status"></p>
             </div>
             <form id="alta" class="tarjeta-form" hidden>
