@@ -14,7 +14,7 @@ let fichaAbierta = null;
 
 const login = document.getElementById("login");
 const panel = document.getElementById("panel");
-const pestanias = document.getElementById("pestanias");
+const seccion = document.getElementById("seccion");
 const listado = document.getElementById("listado");
 const vacio = document.getElementById("vacio");
 const alta = document.getElementById("alta");
@@ -151,25 +151,23 @@ function pintarSesion() {
   mostrar(document.getElementById("ordenar-google"), tieneElectricidad());
   mostrar(login, false);
   mostrar(panel, true);
-  pintarPestanias();
+  pintarSeccion();
   actualizarVista();
 }
 
-function pintarPestanias() {
-  pestanias.replaceChildren();
+function modulosVisibles() {
   const modulos = (sesion.modulos || []).slice();
-  if (tieneElectricidad()) modulos.push("clientes");
-  modulos.forEach((modulo) => {
-    const boton = document.createElement("button");
-    boton.type = "button";
-    boton.className = "pestania";
-    boton.setAttribute("role", "tab");
-    boton.dataset.modulo = modulo;
-    boton.textContent = ETIQUETAS[modulo] || modulo;
-    boton.setAttribute("aria-selected", String(modulo === moduloActivo));
-    boton.addEventListener("click", () => elegirModulo(modulo));
-    pestanias.append(boton);
+  if (tieneElectricidad() && modulos.indexOf("clientes") === -1) modulos.push("clientes");
+  return modulos;
+}
+
+function pintarSeccion() {
+  const actual = moduloActivo;
+  seccion.replaceChildren();
+  modulosVisibles().forEach((modulo) => {
+    seccion.append(new Option(ETIQUETAS[modulo] || modulo, modulo));
   });
+  if (actual) seccion.value = actual;
 }
 
 function esClientes() {
@@ -184,8 +182,8 @@ function actualizarVista() {
   mostrar(mapaNodo, verMapa);
   mostrar(listado, !verMapa);
   if (verMapa) mostrar(vacio, false);
-  document.getElementById("vista-tarjetas").setAttribute("aria-pressed", String(!vistaMapa));
-  document.getElementById("vista-mapa").setAttribute("aria-pressed", String(vistaMapa));
+  const interruptor = document.getElementById("vista-mapa");
+  if (interruptor.checked !== verMapa) interruptor.checked = verMapa;
   if (verMapa) pintarMapa();
 }
 
@@ -230,7 +228,7 @@ async function cargarOpcionesCliente() {
 async function elegirModulo(modulo) {
   moduloActivo = modulo;
   if (modulo !== "electricidad") vistaMapa = false;
-  pintarPestanias();
+  pintarSeccion();
   mostrar(alta, false);
   mostrar(altaCliente, false);
   alta.reset();
@@ -380,6 +378,35 @@ function linea(etiqueta, valor) {
   nombre.textContent = etiqueta + ": ";
   fila.append(nombre, document.createTextNode(texto(valor)));
   return fila;
+}
+
+function tablaChecklist(filas) {
+  const seccion = document.createElement("section");
+  seccion.className = "bloque-detalle";
+  const encabezado = document.createElement("h3");
+  encabezado.textContent = "Checklist";
+  seccion.append(encabezado);
+  if (!filas.length) {
+    const vacioBloque = document.createElement("p");
+    vacioBloque.textContent = "Sin registros.";
+    seccion.append(vacioBloque);
+    return seccion;
+  }
+  const tabla = document.createElement("table");
+  tabla.className = "tabla-check";
+  const cabecera = document.createElement("tr");
+  ["Tarea", "Carpeta", "Estado", "Listo"].forEach((nombre) => {
+    const celda = document.createElement("th");
+    celda.textContent = nombre;
+    cabecera.append(celda);
+  });
+  const thead = document.createElement("thead");
+  thead.append(cabecera);
+  const cuerpo = document.createElement("tbody");
+  filas.forEach((fila) => cuerpo.append(fila));
+  tabla.append(thead, cuerpo);
+  seccion.append(tabla);
+  return seccion;
 }
 
 function bloque(titulo, nodos) {
@@ -593,16 +620,23 @@ async function abrirDetalle(registro) {
   pintarCarrusel(carrusel);
 
   const tareas = (datos.checklist || []).map((item) => {
-    const fila = document.createElement("li");
     const listo = completadoLegible(item.completado);
-    const carpetaTarea = item.subcarpeta_destino ? " · " + item.subcarpeta_destino : "";
-    fila.append(document.createTextNode(item.tarea + carpetaTarea + (listo ? " · Listo" : " · Pendiente")));
-    const boton = document.createElement("button");
-    boton.type = "button";
-    boton.className = "btn btn-secundario";
-    boton.textContent = listo ? "Marcar pendiente" : "Marcar listo";
-    boton.addEventListener("click", () => marcarChecklist(idDe(ficha), item.id_item, !listo));
-    fila.append(" ", boton);
+    const fila = document.createElement("tr");
+    const celdaTarea = document.createElement("td");
+    celdaTarea.textContent = item.tarea || "Tarea";
+    const celdaCarpeta = document.createElement("td");
+    celdaCarpeta.textContent = item.subcarpeta_destino || "—";
+    const celdaEstado = document.createElement("td");
+    celdaEstado.className = listo ? "marca-lista" : "marca-pendiente";
+    celdaEstado.textContent = listo ? "✅" : "❌";
+    const celdaCheck = document.createElement("td");
+    const casilla = document.createElement("input");
+    casilla.type = "checkbox";
+    casilla.checked = listo;
+    casilla.setAttribute("aria-label", "Marcar " + (item.tarea || "tarea"));
+    casilla.addEventListener("change", () => marcarChecklist(idDe(ficha), item.id_item, casilla.checked));
+    celdaCheck.append(casilla);
+    fila.append(celdaTarea, celdaCarpeta, celdaEstado, celdaCheck);
     return fila;
   });
   const materiales = (datos.inventario || []).map((item) => {
@@ -611,7 +645,7 @@ async function abrirDetalle(registro) {
     fila.textContent = item.material + " · " + texto(item.cantidad) + " " + texto(item.unidad) + observacion;
     return fila;
   });
-  extra.append(bloque("Checklist", tareas), bloque("Inventario", materiales));
+  extra.append(tablaChecklist(tareas), bloque("Inventario", materiales));
 
   const carpeta = document.getElementById("detalle-carpeta");
   carpeta.replaceChildren();
@@ -783,6 +817,8 @@ function salir() {
   vistaMapa = false;
   sessionStorage.removeItem(CLAVE_SESION);
   if (detalle.open) detalle.close();
+  const guiaDialogo = document.getElementById("guia-dialog");
+  if (guiaDialogo.open) guiaDialogo.close();
   mostrar(alta, false);
   mostrar(altaCliente, false);
   mostrar(panel, false);
@@ -820,14 +856,13 @@ document.getElementById("cancelar-cliente").addEventListener("click", () => {
 document.getElementById("id_cliente").addEventListener("change", (evento) => {
   mostrar(document.getElementById("cliente-nuevo"), evento.target.value === "nuevo");
 });
-document.getElementById("vista-tarjetas").addEventListener("click", () => {
-  vistaMapa = false;
+document.getElementById("vista-mapa").addEventListener("change", (evento) => {
+  vistaMapa = evento.target.checked;
   actualizarVista();
 });
-document.getElementById("vista-mapa").addEventListener("click", () => {
-  vistaMapa = true;
-  actualizarVista();
-});
+seccion.addEventListener("change", () => elegirModulo(seccion.value));
+document.getElementById("guia").addEventListener("click", () => document.getElementById("guia-dialog").showModal());
+document.getElementById("cerrar-guia").addEventListener("click", () => document.getElementById("guia-dialog").close());
 alta.addEventListener("submit", registrar);
 altaCliente.addEventListener("submit", registrarCliente);
 document.getElementById("cerrar-detalle").addEventListener("click", () => detalle.close());

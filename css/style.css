@@ -520,13 +520,102 @@ h3 {
 }
 
 .acciones-grupo,
-.vista-toggle,
 .carrusel-nav,
-.ficha-acciones {
+.ficha-acciones,
+.sesion-acciones {
   display: flex;
   align-items: center;
   gap: 0.6rem;
   flex-wrap: wrap;
+}
+
+.campo-seccion {
+  max-width: 280px;
+  margin-bottom: 1rem;
+}
+
+.interruptor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-weight: 700;
+}
+
+.interruptor input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+
+.pista {
+  width: 44px;
+  height: 26px;
+  border-radius: 999px;
+  background: var(--linea);
+  position: relative;
+}
+
+.pista::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.interruptor input:checked + .pista {
+  background: var(--azul);
+}
+
+.interruptor input:checked + .pista::after {
+  transform: translateX(18px);
+}
+
+.interruptor input:focus-visible + .pista {
+  outline: 2px solid var(--azul);
+  outline-offset: 2px;
+}
+
+.tabla-check {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.4rem;
+}
+
+.tabla-check th,
+.tabla-check td {
+  text-align: left;
+  padding: 0.55rem 0.45rem;
+  border-bottom: 1px solid var(--linea);
+  vertical-align: middle;
+}
+
+.tabla-check th {
+  font-size: 0.85rem;
+  color: var(--suave);
+}
+
+.tabla-check input[type="checkbox"] {
+  width: 1.15rem;
+  height: 1.15rem;
+}
+
+.marca-pendiente {
+  color: #b42318;
+  font-weight: 700;
+}
+
+.marca-lista {
+  color: #157347;
+  font-weight: 700;
+}
+
+.guia p {
+  margin: 0.7rem 0 0;
 }
 
 .btn-rojo {

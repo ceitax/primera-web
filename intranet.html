@@ -51,16 +51,24 @@
           <div id="panel" hidden>
             <div class="sesion">
               <p id="sesion-texto"></p>
-              <button id="salir" class="btn btn-secundario" type="button">Salir</button>
+              <div class="sesion-acciones">
+                <button id="guia" class="btn btn-secundario" type="button">Guía de uso</button>
+                <button id="salir" class="btn btn-secundario" type="button">Salir</button>
+              </div>
             </div>
-            <div id="pestanias" class="pestanias" role="tablist" aria-label="Módulos"></div>
+            <label class="campo campo-seccion" for="seccion">
+              Elige una sección
+              <select id="seccion"></select>
+            </label>
             <div class="acciones-form">
               <div class="acciones-grupo">
                 <button id="abrir-alta" class="btn" type="button">Nuevo proyecto</button>
-                <div id="vista-toggle" class="vista-toggle" hidden>
-                  <button id="vista-tarjetas" class="pestania" type="button" aria-pressed="true">Tarjetas</button>
-                  <button id="vista-mapa" class="pestania" type="button" aria-pressed="false">Mapa</button>
-                </div>
+                <label id="vista-toggle" class="interruptor" hidden>
+                  <span>Tarjetas</span>
+                  <input id="vista-mapa" type="checkbox" role="switch" aria-label="Cambiar entre tarjetas y mapa" />
+                  <span class="pista" aria-hidden="true"></span>
+                  <span>Mapa</span>
+                </label>
               </div>
               <button id="ordenar-google" class="btn btn-rojo" type="button" hidden>Actualizar</button>
             </div>
@@ -249,6 +257,25 @@
         </div>
       </section>
     </main>
+
+    <dialog id="guia-dialog" class="detalle-dialog">
+      <div class="detalle-cuerpo">
+        <div class="detalle-cabecera">
+          <h2>Guía de uso</h2>
+          <button id="cerrar-guia" class="btn btn-secundario" type="button">Cerrar</button>
+        </div>
+        <div class="guia">
+          <p>NODO ordena los proyectos de FLC. Cada persona ve solo lo que su acceso permite.</p>
+          <p><strong>Elige una sección.</strong> Electricidad son las obras. Propiedades son los terrenos. Clientes son las personas ligadas a una obra.</p>
+          <p><strong>Tarjetas o mapa.</strong> Es el mismo listado de obras. El interruptor cambia la forma de verlo. En el mapa, un punto abre la ficha.</p>
+          <p><strong>La ficha.</strong> Ahí se corrigen los datos, se ve el cliente y se marca el checklist. Una cruz roja es una tarea pendiente. La casilla la deja lista.</p>
+          <p><strong>Planos.</strong> Van en la carpeta 01_Planos. El archivo termina en V1, V2, y así. NODO muestra la versión más nueva.</p>
+          <p><strong>Fotos.</strong> Van en 04_Fotografias_Obra. Se suben desde la ficha o directo en Drive. Actualizar trae las nuevas y no borra el título ni el comentario.</p>
+          <p><strong>Carpetas de una obra nueva.</strong> Planos, documentos SEC, informes técnicos y fotografías. Nuevo proyecto las crea juntas, con el código ELE.</p>
+          <p><strong>Terminar.</strong> Cierra la obra y deja anotado quién la aprobó.</p>
+        </div>
+      </div>
+    </dialog>
 
     <dialog id="detalle" class="detalle-dialog">
       <div class="detalle-cuerpo">
