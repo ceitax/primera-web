@@ -3,9 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Intranet · FLC Ingeniería</title>
-    <meta name="description" content="Intranet de FLC Ingeniería: proyectos, checklist, inventario y carpetas de Drive." />
+    <title>NODO · FLC Ingeniería</title>
+    <meta name="description" content="NODO gestiona los proyectos de FLC Ingeniería." />
     <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   </head>
   <body>
     <header class="site-header">
@@ -26,16 +27,9 @@
     </header>
 
     <main>
-      <section class="hero hero-page">
-        <div class="wrap">
-          <p class="eyebrow">FLC Ingeniería</p>
-          <h1>Intranet</h1>
-          <p class="lead">Proyectos, avance de obra y carpetas de Drive según tu rol.</p>
-        </div>
-      </section>
-
       <section class="section intranet">
         <div class="wrap">
+          <p class="nodo-linea">NODO: Gestiona proyectos de forma fácil y ordenada</p>
           <form id="login" class="tarjeta-form">
             <h2>Entrar</h2>
             <div class="campo">
@@ -61,10 +55,16 @@
             </div>
             <div id="pestanias" class="pestanias" role="tablist" aria-label="Módulos"></div>
             <div class="acciones-form">
-              <button id="abrir-alta" class="btn" type="button">Nuevo proyecto</button>
-              <button id="ordenar-google" class="btn btn-secundario" type="button" hidden>Ordenar en Google</button>
-              <p id="mensaje-panel" class="mensaje" role="status"></p>
+              <div class="acciones-grupo">
+                <button id="abrir-alta" class="btn" type="button">Nuevo proyecto</button>
+                <div id="vista-toggle" class="vista-toggle" hidden>
+                  <button id="vista-tarjetas" class="pestania" type="button" aria-pressed="true">Tarjetas</button>
+                  <button id="vista-mapa" class="pestania" type="button" aria-pressed="false">Mapa</button>
+                </div>
+              </div>
+              <button id="ordenar-google" class="btn btn-rojo" type="button" hidden>Actualizar</button>
             </div>
+            <p id="mensaje-panel" class="mensaje" role="status"></p>
             <form id="alta" class="tarjeta-form" hidden>
               <h2 id="alta-titulo">Nuevo proyecto</h2>
               <div id="campos-electricidad" class="rejilla-form">
@@ -81,12 +81,57 @@
                   <input id="cliente_sector" name="cliente_sector" />
                 </div>
                 <div class="campo">
+                  <label for="comuna">Comuna</label>
+                  <input id="comuna" name="comuna" />
+                </div>
+                <div class="campo">
+                  <label for="potencia_declarada">Potencia declarada</label>
+                  <input id="potencia_declarada" name="potencia_declarada" />
+                </div>
+                <div class="campo">
                   <label for="estado-electricidad">Estado</label>
                   <select id="estado-electricidad" name="estado">
                     <option>En obra</option>
+                    <option>TE1 enviado</option>
                     <option>En espera</option>
-                    <option>Finalizado</option>
+                    <option>Terminado</option>
                   </select>
+                </div>
+                <div class="campo">
+                  <label for="id_cliente">Cliente</label>
+                  <select id="id_cliente" name="id_cliente">
+                    <option value="">Sin cliente</option>
+                    <option value="nuevo">Cliente nuevo</option>
+                  </select>
+                </div>
+                <div id="cliente-nuevo" class="campo-ancho rejilla-form" hidden>
+                  <div class="campo">
+                    <label for="nombre_completo">Nombre del cliente</label>
+                    <input id="nombre_completo" name="nombre_completo" />
+                  </div>
+                  <div class="campo">
+                    <label for="rut">RUT</label>
+                    <input id="rut" name="rut" />
+                  </div>
+                  <div class="campo">
+                    <label for="telefono">Teléfono</label>
+                    <input id="telefono" name="telefono" />
+                  </div>
+                  <div class="campo">
+                    <label for="correo_cliente">Correo del cliente</label>
+                    <input id="correo_cliente" name="correo_cliente" type="email" />
+                  </div>
+                  <div class="campo">
+                    <label for="tipo_persona">Tipo de persona</label>
+                    <select id="tipo_persona" name="tipo_persona">
+                      <option>Natural</option>
+                      <option>Jurídica</option>
+                    </select>
+                  </div>
+                  <div class="campo">
+                    <label for="direccion_facturacion">Dirección</label>
+                    <input id="direccion_facturacion" name="direccion_facturacion" />
+                  </div>
                 </div>
                 <div class="campo">
                   <label for="latitud-electricidad">Latitud</label>
@@ -160,6 +205,44 @@
                 <button id="cancelar-alta" class="btn btn-secundario" type="button">Cancelar</button>
               </div>
             </form>
+            <form id="alta-cliente" class="tarjeta-form" hidden>
+              <h2>Cliente</h2>
+              <div class="rejilla-form">
+                <div class="campo campo-ancho">
+                  <label for="cliente-nombre">Nombre</label>
+                  <input id="cliente-nombre" name="nombre_completo" required />
+                </div>
+                <div class="campo">
+                  <label for="cliente-rut">RUT</label>
+                  <input id="cliente-rut" name="rut" />
+                </div>
+                <div class="campo">
+                  <label for="cliente-telefono">Teléfono</label>
+                  <input id="cliente-telefono" name="telefono" />
+                </div>
+                <div class="campo">
+                  <label for="cliente-correo">Correo</label>
+                  <input id="cliente-correo" name="correo_cliente" type="email" />
+                </div>
+                <div class="campo">
+                  <label for="cliente-tipo">Tipo de persona</label>
+                  <select id="cliente-tipo" name="tipo_persona">
+                    <option>Natural</option>
+                    <option>Jurídica</option>
+                  </select>
+                </div>
+                <div class="campo">
+                  <label for="cliente-direccion">Dirección</label>
+                  <input id="cliente-direccion" name="direccion_facturacion" />
+                </div>
+              </div>
+              <input id="cliente-id" name="id_cliente" type="hidden" />
+              <div class="acciones-form">
+                <button class="btn" type="submit">Guardar cliente</button>
+                <button id="cancelar-cliente" class="btn btn-secundario" type="button">Cancelar</button>
+              </div>
+            </form>
+            <div id="mapa-intranet" class="mapa-intranet" hidden></div>
             <div id="listado" class="grilla-proyectos"></div>
             <p id="vacio" class="vacio" hidden>No hay proyectos en este módulo.</p>
           </div>
@@ -189,6 +272,7 @@
       </div>
     </footer>
 
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="js/intranet-config.js"></script>
     <script src="js/intranet.js"></script>
   </body>
