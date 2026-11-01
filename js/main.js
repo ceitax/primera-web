@@ -425,3 +425,220 @@ const fichasDesarrollo = document.getElementById("fichas-desarrollo");
 const fichasEquipo = document.getElementById("fichas-equipo");
 if (fichasEquipo) pintarEquipo(fichasEquipo);
 if (fichasDesarrollo) pintarDesarrollo(fichasDesarrollo);
+
+function scriptBasePublico() {
+  const config = window.FLC_INTRANET || {};
+  return (config.scriptUrl || "").replace(/\/$/, "");
+}
+
+function notaEstado(nodo, mensaje, esError) {
+  if (!nodo) return;
+  nodo.textContent = mensaje;
+  nodo.classList.toggle("is-error", Boolean(esError));
+}
+
+function initCotizacion(formulario) {
+  const nota = document.getElementById("cotizar-estado");
+  const boton = formulario.querySelector("[type=submit]");
+
+  formulario.addEventListener("submit", async (evento) => {
+    evento.preventDefault();
+    if (!formulario.reportValidity()) return;
+
+    const datos = Object.fromEntries(new FormData(formulario).entries());
+    const base = scriptBasePublico();
+    if (!base) {
+      notaEstado(nota, "Falta la dirección del script de Google.", true);
+      return;
+    }
+
+    if (boton) boton.disabled = true;
+    notaEstado(nota, "Enviando…", false);
+
+    try {
+      const respuesta = await fetch(base, {
+        method: "POST",
+        redirect: "follow",
+        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        body: JSON.stringify({
+          accion: "cotizar",
+          nombre: datos.nombre || "",
+          telefono: datos.telefono || "",
+          correo: datos.correo || "",
+          servicio: datos.servicio || "",
+          mensaje: datos.mensaje || "",
+        }),
+      });
+      let cuerpo = {};
+      try {
+        cuerpo = await respuesta.json();
+      } catch (error) {
+        throw new Error("Google no respondió con datos. Publica la nueva versión del script.");
+      }
+      if (!respuesta.ok || cuerpo.ok === false || cuerpo.cotizacion !== true) {
+        throw new Error(
+          cuerpo.error || "El script publicado todavía no recibe cotizaciones. Publica la nueva versión del script."
+        );
+      }
+      formulario.reset();
+      notaEstado(nota, "Recibimos tu solicitud. El equipo te contactará.", false);
+    } catch (error) {
+      const mensaje =
+        error && error.message === "Failed to fetch"
+          ? "No pude contactar Google. Publica la nueva versión del script y vuelve a intentar."
+          : (error && error.message) || "No se pudo enviar la cotización.";
+      notaEstado(nota, mensaje, true);
+    } finally {
+      if (boton) boton.disabled = false;
+    }
+  });
+}
+
+const FOTO_ORIGEN_RESPALDO = {
+  nombre: "Campo",
+  url: "https://drive.google.com/thumbnail?id=1iNHYQGFzIcQOlSL5mIxiHJOU4C_B8O6-&sz=w1600",
+};
+
+function urlFotos(album) {
+  const base = scriptBasePublico();
+  if (!base) return "";
+  return base + "?accion=fotosPublicas&album=" + encodeURIComponent(album);
+}
+
+function tituloFoto(nombre) {
+  const base = String(nombre || "")
+    .replace(/\.[^.]+$/, "")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!base || /^(img|dsc|foto|image|pict)\s*\d+$/i.test(base)) return "";
+  return base;
+}
+
+function pasoCarrusel(pista) {
+  const slide = pista.querySelector(".carrusel-marco-slide, .carrusel-slide");
+  if (!slide) return pista.clientWidth;
+  const estilos = getComputedStyle(pista);
+  const gap = parseFloat(estilos.columnGap || estilos.gap || "0") || 0;
+  return slide.getBoundingClientRect().width + gap;
+}
+
+function enlazarCarrusel(carrusel, pista) {
+  const controles = carrusel.querySelector(".carrusel-controles");
+  const slides = pista.querySelectorAll(".carrusel-marco-slide, .carrusel-slide");
+  if (controles) controles.hidden = slides.length < 2;
+
+  carrusel.querySelectorAll(".carrusel-btn").forEach((boton) => {
+    boton.addEventListener("click", () => {
+      const dir = Number(boton.dataset.dir) || 1;
+      pista.scrollBy({ left: dir * pasoCarrusel(pista), behavior: "smooth" });
+    });
+  });
+
+  carrusel.addEventListener("keydown", (evento) => {
+    if (evento.key !== "ArrowLeft" && evento.key !== "ArrowRight") return;
+    evento.preventDefault();
+    const dir = evento.key === "ArrowRight" ? 1 : -1;
+    pista.scrollBy({ left: dir * pasoCarrusel(pista), behavior: "smooth" });
+  });
+}
+
+function pintarFotos(pista, fotos, album) {
+  const altBase = album === "origen" ? "Fotografía del campo, raíces del Grupo Frías" : "Imagen del flujo de trabajo de Grupo Frías";
+  pista.replaceChildren();
+  fotos.forEach((foto) => {
+    const slide = document.createElement("div");
+    slide.className = "carrusel-marco-slide";
+    const img = document.createElement("img");
+    img.src = foto.url;
+    img.alt = tituloFoto(foto.nombre) || altBase;
+    img.loading = "lazy";
+    img.addEventListener("error", function onError() {
+      img.removeEventListener("error", onError);
+      if (album === "origen") {
+        img.src = "img/casa_generica.jpg";
+        return;
+      }
+      const hueco = document.createElement("div");
+      hueco.className = "carrusel-foto carrusel-foto-vacia";
+      hueco.setAttribute("aria-hidden", "true");
+      img.replaceWith(hueco);
+    });
+    slide.append(img);
+    pista.append(slide);
+  });
+}
+
+async function initCarruselFotos(carrusel) {
+  const pista = carrusel.querySelector(".carrusel-marco-pista");
+  const nota = carrusel.querySelector(".carrusel-nota");
+  const album = carrusel.dataset.album;
+  if (!pista || !album) return;
+
+  let fotos = [];
+  try {
+    const destino = urlFotos(album);
+    if (!destino) throw new Error("url");
+    const respuesta = await fetch(destino);
+    const datos = await respuesta.json();
+    if (!datos || !datos.ok || !Array.isArray(datos.fotos)) throw new Error((datos && datos.error) || "fotos");
+    fotos = datos.fotos.filter((foto) => foto && foto.url);
+  } catch (error) {
+    fotos = [];
+  }
+
+  if (!fotos.length && album === "origen") fotos = [FOTO_ORIGEN_RESPALDO];
+  if (!fotos.length) {
+    const controles = carrusel.querySelector(".carrusel-controles");
+    if (controles) controles.hidden = true;
+    if (nota) {
+      nota.hidden = false;
+      nota.textContent = "Las fotos de este recorrido se ven al publicar la nueva versión del script de Google.";
+    }
+    return;
+  }
+
+  pintarFotos(pista, fotos, album);
+  if (nota) nota.hidden = true;
+  enlazarCarrusel(carrusel, pista);
+}
+
+function ordenNombreFoto(nombre) {
+  const numero = parseInt(String(nombre || ""), 10);
+  return Number.isFinite(numero) ? numero : 999;
+}
+
+async function initFotosEquipo() {
+  const retratos = document.querySelectorAll(".equipo-foto");
+  if (!retratos.length) return;
+  try {
+    const destino = urlFotos("equipo");
+    if (!destino) return;
+    const respuesta = await fetch(destino);
+    const datos = await respuesta.json();
+    if (!datos || !datos.ok || !Array.isArray(datos.fotos)) return;
+    const fotos = datos.fotos
+      .filter((foto) => foto && foto.url)
+      .sort((a, b) => ordenNombreFoto(a.nombre) - ordenNombreFoto(b.nombre));
+    retratos.forEach((img, indice) => {
+      const foto = fotos[indice];
+      if (!foto) return;
+      img.addEventListener("load", () => {
+        img.hidden = false;
+      });
+      img.addEventListener("error", () => {
+        img.hidden = true;
+      });
+      img.src = foto.url;
+    });
+  } catch (error) {
+    retratos.forEach((img) => {
+      img.hidden = true;
+    });
+  }
+}
+
+const formCotizar = document.getElementById("form-cotizar");
+if (formCotizar) initCotizacion(formCotizar);
+document.querySelectorAll(".carrusel-marco").forEach((carrusel) => initCarruselFotos(carrusel));
+initFotosEquipo();

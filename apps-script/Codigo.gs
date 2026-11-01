@@ -66,6 +66,8 @@ function atender(parametros) {
   try {
     const accion = parametros.accion || "estado";
     if (accion === "catalogoPublico") return responder(catalogoPublico(parametros.modulo));
+    if (accion === "fotosPublicas") return responder(fotosPublicas(parametros));
+    if (accion === "cotizar") return responder(enviarCotizacion(parametros));
     if (accion === "sesion") return responder(abrirSesion(parametros));
     if (accion === "listar") return responder(listar(parametros));
     if (accion === "detalle") return responder(detalle(parametros));
@@ -121,6 +123,97 @@ function catalogoPublico(modulo) {
     });
   }
   return { ok: true, modulo: nombre, fichas: fichas };
+}
+
+const ALBUMES_PUBLICOS = {
+  origen: { tipo: "archivo", id: "1iNHYQGFzIcQOlSL5mIxiHJOU4C_B8O6-" },
+  proceso: { tipo: "carpeta", id: "17za_k2NMnEvoG7Oi1NCoya1AtFflPwaQ" },
+  equipo: { tipo: "carpeta", id: "1jyanb2FTiRX6f9hoJilt7C53_Vk70S7d" },
+};
+const TOPE_FOTOS_PUBLICAS = 12;
+const ESCANEO_FOTOS_PUBLICAS = 40;
+
+function fotosPublicas(parametros) {
+  const album = String(parametros.album || "").toLowerCase();
+  const config = ALBUMES_PUBLICOS[album];
+  if (!config) throw new Error("Álbum no reconocido.");
+  const imagenes = [];
+  const visitar = function (archivo) {
+    if (imagenes.length >= ESCANEO_FOTOS_PUBLICAS) return;
+    if (String(archivo.getMimeType() || "").indexOf("image/") !== 0) return;
+    imagenes.push(archivo);
+  };
+  if (config.tipo === "carpeta") {
+    const carpeta = DriveApp.getFolderById(config.id);
+    const archivos = carpeta.getFiles();
+    while (archivos.hasNext() && imagenes.length < ESCANEO_FOTOS_PUBLICAS) visitar(archivos.next());
+  } else {
+    const archivo = DriveApp.getFileById(config.id);
+    const padres = archivo.getParents();
+    if (padres.hasNext()) {
+      const carpeta = padres.next();
+      const archivos = carpeta.getFiles();
+      while (archivos.hasNext() && imagenes.length < ESCANEO_FOTOS_PUBLICAS) visitar(archivos.next());
+    } else {
+      visitar(archivo);
+    }
+  }
+  imagenes.sort(function (a, b) {
+    return String(a.getName()).localeCompare(String(b.getName()), "es");
+  });
+  const fotos = imagenes.slice(0, TOPE_FOTOS_PUBLICAS).map(fotoPublica);
+  if (!fotos.length) throw new Error("Esa carpeta no tiene imágenes.");
+  return { ok: true, album: album, fotos: fotos };
+}
+
+function fotoPublica(archivo) {
+  archivo.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  const id = archivo.getId();
+  return {
+    id: id,
+    nombre: archivo.getName(),
+    url: "https://drive.google.com/thumbnail?id=" + id + "&sz=w1600",
+  };
+}
+
+const SERVICIOS_COTIZACION = ["Frías Electricidad", "Frías Construcción", "Frías Territorio"];
+const CORREO_COTIZACION = "pceafrias7@gmail.com";
+const COPIA_COTIZACION = "pabloceaduran@gmail.com,alarcon73237717@gmail.com";
+
+function recortar(valor, maximo) {
+  const limpio = texto(valor);
+  return limpio.length > maximo ? limpio.slice(0, maximo) : limpio;
+}
+
+function enviarCotizacion(parametros) {
+  const nombre = recortar(parametros.nombre, 120);
+  const telefono = recortar(parametros.telefono, 40);
+  const correo = recortar(parametros.correo, 160);
+  const servicio = recortar(parametros.servicio, 80);
+  const mensaje = recortar(parametros.mensaje, 2000);
+  if (!nombre) throw new Error("Falta el nombre.");
+  if (!telefono) throw new Error("Falta el teléfono.");
+  if (!correo || correo.indexOf("@") === -1) throw new Error("El correo no es válido.");
+  if (SERVICIOS_COTIZACION.indexOf(servicio) === -1) throw new Error("Selecciona una división.");
+  if (!mensaje) throw new Error("Falta el detalle del proyecto.");
+  MailApp.sendEmail({
+    to: CORREO_COTIZACION,
+    cc: COPIA_COTIZACION,
+    replyTo: correo,
+    subject: "Cotización Grupo Frías — " + servicio + " — " + nombre,
+    body: [
+      "Nueva cotización desde la web de Grupo Frías.",
+      "",
+      "Nombre: " + nombre,
+      "Teléfono: " + telefono,
+      "Correo: " + correo,
+      "Servicio: " + servicio,
+      "",
+      "Mensaje:",
+      mensaje,
+    ].join("\n"),
+  });
+  return { ok: true, cotizacion: true };
 }
 
 function abrirSesion(parametros) {

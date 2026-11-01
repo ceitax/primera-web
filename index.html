@@ -3,163 +3,275 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FLC Ingeniería</title>
+    <title>Grupo Frías — Ingeniería para el Sur</title>
     <meta
       name="description"
-      content="FLC Ingeniería integra electricidad, propiedades y desarrollo tecnológico con una visión STEM regional."
+      content="Hacemos proyectos de ingeniería eléctrica, construcción y gestión de terrenos en la Región de Los Lagos. Conectamos la experiencia de campo con la precisión técnica."
     />
     <link rel="stylesheet" href="css/style.css" />
   </head>
   <body>
     <header class="site-header">
       <div class="header-inner">
-        <a class="logo" href="index.html">FLC Ingeniería</a>
+        <a class="logo" href="#inicio">Grupo Frías</a>
         <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu">
           Menú
         </button>
         <nav id="menu" class="nav" aria-label="Principal">
-          <a href="index.html">Inicio</a>
-          <a href="electricidad.html">FLC Electricidad</a>
-          <a href="propiedades.html">FLC Propiedades</a>
-          <a href="desarrollo.html">FLC Desarrollo</a>
-          <a href="intranet.html">Intranet</a>
-          <a href="index.html#contacto">Contacto</a>
+          <a href="#inicio">Inicio</a>
+          <a href="#nosotros">Nosotros</a>
+          <a href="#servicios">Servicios</a>
+          <a href="#como-trabajamos">Cómo trabajamos</a>
+          <a href="#cotizar">Cotizar</a>
+          <a
+            class="nav-wa"
+            href="https://wa.me/56978623493?text=Hola%20Grupo%20Fr%C3%ADas,%20quisiera%20más%20información"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false">
+              <path
+                fill="currentColor"
+                d="M20.5 3.5A11 11 0 0 0 2.1 17.2L1 23l6-1.6A11 11 0 0 0 20.5 3.5zm-8.5 17a9.1 9.1 0 0 1-4.6-1.3l-.3-.2-3.5.9.9-3.4-.2-.3A9.1 9.1 0 1 1 12 20.5zm5-6.8c-.3-.1-1.6-.8-1.8-.9s-.4-.1-.6.1-.7.9-.8 1-.3.2-.6.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.4.1-.6l.4-.5.2-.3a.5.5 0 0 0 0-.5c0-.1-.6-1.4-.8-1.9s-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 11.9 11.9 0 0 0 4.6 4.1 15 15 0 0 0 1.5.6 3.6 3.6 0 0 0 1.7.1 2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.6-.3z"
+              />
+            </svg>
+            WhatsApp
+          </a>
         </nav>
       </div>
     </header>
 
     <main>
-      <section class="hero">
+      <section class="hero hero-inicio" id="inicio">
+        <div class="wrap hero-grid">
+          <img class="hero-logo" src="img/logos/FriasCuadrado.jpg" alt="Grupo Frías" />
+          <div class="hero-copy">
+            <p class="eyebrow">Grupo Frías — Ingeniería para el Sur</p>
+            <h1>Ingeniería, electricidad y construcción en un solo lugar</h1>
+            <p class="lead">
+              Resolvemos desde la factibilidad y proyectos eléctricos de alta exigencia hasta la construcción completa de casas eficientes y la regularización de tu propiedad. Un solo equipo de confianza en la Región de Los Lagos, acompañándote desde el primer plano hasta la entrega de llaves.
+            </p>
+            <div class="hero-actions">
+              <a
+                class="btn"
+                href="https://wa.me/56978623493?text=Hola%20Grupo%20Fr%C3%ADas,%20quisiera%20más%20información"
+                target="_blank"
+                rel="noopener noreferrer"
+                >Hablar por WhatsApp</a
+              >
+              <a class="btn btn-ghost" href="#cotizar">Cotizar Proyecto</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="nosotros">
         <div class="wrap">
-          <p class="eyebrow">Ingeniería aplicada al desarrollo regional</p>
-          <h1>FLC Ingeniería</h1>
-          <p class="lead">
-            Integración estratégica de infraestructura eléctrica, gestión territorial y software operativo. Soluciones técnicas diseñadas para ejecutarse en terreno y escalar en el tiempo.
-          </p>
-          <div class="hero-actions">
-            <a class="btn" href="#areas">Explorar Unidades</a>
-            <a class="btn btn-ghost" href="#contacto">Iniciar Consulta Técnica</a>
+          <div class="origen-layout">
+            <div class="origen-texto">
+              <p class="eyebrow">Nuestro origen</p>
+              <h2>De la leña y el campo al rigor de la ingeniería</h2>
+              <p>
+                Lo nuestro viene de la tierra. Somos la familia Frías Vargas: criados en el campo del sur, entre la leña, las huertas familiares y la costumbre de levantar nuestras propias casas desde hace más de 60 años.
+              </p>
+              <p>
+                Esa tradición de trabajo duro no se pierde, se potencia. Hoy los nietos sumamos la formación profesional en ingeniería eléctrica, automatización y construcción. Unimos el oficio práctico del campo con el estándar técnico más alto para resolver proyectos complejos sin rodeos.
+              </p>
+            </div>
+            <div
+              id="carrusel-origen"
+              class="carrusel-marco"
+              data-album="origen"
+              tabindex="0"
+              aria-roledescription="carrusel"
+              aria-label="Fotografías del campo"
+            >
+              <p class="carrusel-nota">Leyendo las fotos…</p>
+              <div class="carrusel-marco-pista"></div>
+              <div class="carrusel-controles" hidden>
+                <button class="carrusel-btn" type="button" data-dir="-1" aria-label="Foto anterior">←</button>
+                <button class="carrusel-btn" type="button" data-dir="1" aria-label="Foto siguiente">→</button>
+              </div>
+            </div>
+          </div>
+          <div class="equipo-panel">
+            <div class="grid-3">
+            <article class="card equipo-card">
+              <div class="avatar">
+                <span aria-hidden="true">PC</span>
+                <img class="equipo-foto" alt="" hidden />
+              </div>
+              <h3>Pablo Cea Frías</h3>
+              <p class="equipo-formacion"><em>Ingeniero Civil Industrial Eléctrico (UC) · Instalador Eléctrico Autorizado SEC (Clase A)</em></p>
+              <p>
+                Diseño e ingeniería eléctrica/electrónica de alta complejidad, presupuestos reales, gestión de operaciones y certeza normativo-legal SEC.
+              </p>
+            </article>
+            <article class="card equipo-card">
+              <div class="avatar">
+                <span aria-hidden="true">DL</span>
+                <img class="equipo-foto" alt="" hidden />
+              </div>
+              <h3>Diego Levin</h3>
+              <p class="equipo-formacion"><em>Ingeniero en Construcción (Duoc UC)</em></p>
+              <p>
+                Proyectista, diseño de casas —la mente creativa detrás de los diseños—, dirección técnica de obras civiles, planificación y gestión en terreno.
+              </p>
+            </article>
+            <article class="card equipo-card">
+              <div class="avatar">
+                <span aria-hidden="true">RL</span>
+                <img class="equipo-foto" alt="" hidden />
+              </div>
+              <h3>Robinson Levin</h3>
+              <p class="equipo-formacion"><em>Técnico e Instalador Eléctrico Autorizado SEC (Clase D)</em></p>
+              <p>
+                Inspección técnica de obras, supervisión de instalaciones, obras de construcción y ejecución práctica con más de 20 años de experiencia en terreno.
+              </p>
+            </article>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="section" id="quienes-somos">
-        <div class="wrap split">
-          <div>
-            <p class="eyebrow">Nuestra Identidad</p>
-            <h2>Rigor técnico y visión territorial</h2>
-            <p>
-              FLC Ingeniería une la ejecución de obra en terreno con la precisión del desarrollo digital. Respondemos a las necesidades de la Región de Los Lagos mediante soluciones eléctricas normadas, ordenamiento de suelo eficiente y herramientas de software creadas para la gestión operativa real.
-            </p>
-            <p>
-              Bajo un enfoque STEM (Ciencia, Tecnología, Ingeniería y Matemáticas), transformamos datos en decisiones técnicas de alta precisión, garantizando estándares de calidad desde el diseño en plano hasta la entrega en terreno.
-            </p>
-          </div>
-          <ul class="pillars">
-            <li class="pillar">
-              <h3>Criterio STEM</h3>
-              <p>Modelado y análisis riguroso para la toma de decisiones técnicas sin margen de improvisación.</p>
-            </li>
-            <li class="pillar">
-              <h3>Estándar de Obra</h3>
-              <p>Diseño y ejecución alineados con normativas vigentes, seguridad estructural y durabilidad.</p>
-            </li>
-            <li class="pillar">
-              <h3>Ecosistema Digital</h3>
-              <p>Desarrollo de software propietario para el control, trazabilidad y gestión en tiempo real.</p>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="section section-muted" id="areas">
+      <section class="section section-muted" id="servicios">
         <div class="wrap">
           <div class="intro">
-            <p class="eyebrow">Capacidades Operativas</p>
-            <h2>Tres áreas de especialización, un solo estándar</h2>
-            <p>Estructura modular diseñada para atender frentes clave de la infraestructura y el territorio.</p>
+            <p class="eyebrow">Frentes de trabajo</p>
+            <h2>Tres áreas, la misma gente de confianza</h2>
+            <p>Separamos las especialidades para darte respuestas precisas, pero coordinamos todo bajo la misma mesa.</p>
           </div>
           <div class="grid-3">
-            <article class="card">
-              <span class="badge badge-operativo">Operativo</span>
-              <h3>FLC Electricidad</h3>
-              <p>Proyectos de ingeniería eléctrica, regularizaciones SEC (TE1), tableros y trazabilidad en mapa.</p>
-              <a href="electricidad.html">Ver Soluciones Eléctricas →</a>
+            <article class="card division-card">
+              <img class="division-logo" src="img/logos/FriasE.jpg" alt="Logo de Frías Electricidad" />
+              <div class="division-cuerpo">
+                <h3>Frías Electricidad</h3>
+                <p class="sello-sec">Instaladores Autorizados SEC</p>
+                <p>
+                  Proyectos complejos en baja y media tensión, automatización, empalmes, planos, mallas a tierra, tableros industriales y certificación SEC (TE1/TE4) sin complicaciones.
+                </p>
+              </div>
             </article>
-            <article class="card">
-              <span class="badge badge-operativo">Operativo</span>
-              <h3>FLC Propiedades</h3>
-              <p>Catálogo técnico de parcelas y macrolotes con factibilidades verificadas e integración GIS.</p>
-              <a href="propiedades.html">Ver Catálogo Territorial →</a>
+            <article class="card division-card">
+              <img class="division-logo" src="img/logos/FriasC.jpg" alt="Logo de Frías Construcción" />
+              <div class="division-cuerpo">
+                <h3>Frías Construcción</h3>
+                <p class="sello-sec">Diseño e innovación eficiente</p>
+                <p>
+                  Diseños modernos, innovadores y altamente eficientes energéticamente. Edificación llave en mano, casas, galpones, bodegas, cabañas, ampliaciones y obras civiles con cubicación y dirección técnica.
+                </p>
+              </div>
             </article>
-            <article class="card">
-              <span class="badge badge-desarrollo">En desarrollo</span>
-              <h3>FLC Desarrollo</h3>
-              <p>Showroom de soluciones digitales, sistemas internos (NODO) y productos de software.</p>
-              <a href="desarrollo.html">Ver Soluciones Software →</a>
+            <article class="card division-card">
+              <img class="division-logo" src="img/logos/FriasT.jpg" alt="Logo de Frías Territorio" />
+              <div class="division-cuerpo">
+                <h3>Frías Territorio</h3>
+                <p class="sello-sec">Papeleo, parcelas y regularizaciones</p>
+                <p>
+                  Dejamos tu terreno o parcela al día. Evaluación técnica de luz y agua, apoyo en compraventa, loteos y regularización de casas ante la municipalidad para que construyas o vendas con tranquilidad.
+                </p>
+              </div>
             </article>
           </div>
         </div>
       </section>
 
-      <section class="section" id="equipo">
+      <section class="section" id="como-trabajamos">
         <div class="wrap">
-          <div class="intro">
-            <p class="eyebrow">Liderazgo Técnico</p>
-            <h2>Especialistas al frente de cada obra</h2>
-            <p id="nota-equipo">Leyendo el equipo…</p>
-          </div>
-          <div id="fichas-equipo" class="grid-3"></div>
-        </div>
-      </section>
-
-      <section class="cta">
-        <div class="wrap">
-          <div class="cta-panel">
-            <div>
-              <h2>¿Tienes una obra o proyecto en fase de planificación?</h2>
-              <p>Cuéntanos el alcance de tu requerimiento y evaluemos la factibilidad técnica y operativa.</p>
+          <div class="split proceso-layout">
+            <div
+              id="carrusel-proceso"
+              class="carrusel-marco carrusel-compacto"
+              data-album="proceso"
+              tabindex="0"
+              aria-roledescription="carrusel"
+              aria-label="Cómo trabajamos"
+            >
+              <p class="carrusel-nota">Leyendo las fotos…</p>
+              <div class="carrusel-marco-pista"></div>
+              <div class="carrusel-controles" hidden>
+                <button class="carrusel-btn" type="button" data-dir="-1" aria-label="Foto anterior">←</button>
+                <button class="carrusel-btn" type="button" data-dir="1" aria-label="Foto siguiente">→</button>
+              </div>
             </div>
-            <a class="btn" href="#contacto">Contactar con Ingeniería</a>
+            <div>
+              <p class="eyebrow">Método</p>
+              <h2>Cómo trabajamos</h2>
+              <p>
+                Combinamos la fuerza y el oficio de terreno con tecnología, automatización y normas de ingeniería moderna. Desarrollamos soluciones eficientes y levantamos obras duraderas, pensadas y calculadas para aguantar el clima duro de la Región de Los Lagos.
+              </p>
+            </div>
           </div>
+          <aside class="catalogo-wa">
+            <p>
+              ¿Quieres conocer nuestros proyectos ejecutados y diseños de casas? Solicita el catálogo completo directamente por WhatsApp.
+            </p>
+            <a
+              class="btn"
+              href="https://wa.me/56978623493?text=Hola%20Grupo%20Fr%C3%ADas,%20quisiera%20solicitar%20el%20cat%C3%A1logo%20de%20proyectos%20y%20dise%C3%B1os%20de%20casas"
+              target="_blank"
+              rel="noopener noreferrer"
+              >Solicitar catálogo</a
+            >
+          </aside>
         </div>
       </section>
 
-      <section class="section" id="contacto">
+      <section class="section cotizar-panel" id="cotizar">
         <div class="wrap">
-          <div class="intro">
-            <p class="eyebrow">Canales de Atención</p>
-            <h2>Evaluemos tu requerimiento</h2>
-            <p>
-              Selecciona el área de tu interés para coordinar una evaluación técnica según tu frente de trabajo.
-            </p>
+          <div class="intro cotizar-intro">
+            <p class="eyebrow">Cotización</p>
+            <h2>Cuéntanos de tu proyecto</h2>
+            <p>Dinos qué necesitas hacer y en qué área. Te responderemos directo a tu correo o WhatsApp.</p>
           </div>
-          <div class="contacto-grid">
-            <a class="card" href="electricidad.html">
-              <h3>Electricidad</h3>
-              <p>Proyectos nuevos, regularizaciones TE1 e infraestructura.</p>
-            </a>
-            <a class="card" href="propiedades.html">
-              <h3>Propiedades</h3>
-              <p>Consultas de loteos, factibilidades y ubicaciones.</p>
-            </a>
-            <a class="card" href="desarrollo.html">
-              <h3>Desarrollo</h3>
-              <p>Plataformas web, sistema NODO y soluciones a medida.</p>
-            </a>
+          <div class="cotizar-tarjeta">
+            <form id="form-cotizar" class="formulario">
+              <div class="campo">
+                <label for="cotizar-nombre">Nombre</label>
+                <input id="cotizar-nombre" name="nombre" type="text" autocomplete="name" required maxlength="120" />
+              </div>
+              <div class="campo">
+                <label for="cotizar-telefono">Teléfono / WhatsApp</label>
+                <input id="cotizar-telefono" name="telefono" type="tel" autocomplete="tel" required maxlength="40" />
+              </div>
+              <div class="campo">
+                <label for="cotizar-correo">Correo</label>
+                <input id="cotizar-correo" name="correo" type="email" autocomplete="email" required maxlength="160" />
+              </div>
+              <div class="campo">
+                <label for="cotizar-servicio">Servicio</label>
+                <select id="cotizar-servicio" name="servicio" required>
+                  <option value="">Selecciona una división</option>
+                  <option value="Frías Electricidad">Frías Electricidad</option>
+                  <option value="Frías Construcción">Frías Construcción</option>
+                  <option value="Frías Territorio">Frías Territorio</option>
+                </select>
+              </div>
+              <div class="campo campo-ancho">
+                <label for="cotizar-mensaje">Mensaje / detalle</label>
+                <textarea id="cotizar-mensaje" name="mensaje" required maxlength="2000" rows="4"></textarea>
+              </div>
+              <div class="form-acciones">
+                <button class="btn" type="submit">Enviar cotización</button>
+                <p id="cotizar-estado" class="form-nota" role="status"></p>
+              </div>
+              <p class="form-compromiso">Te respondemos en menos de 24 horas hábiles</p>
+            </form>
           </div>
         </div>
       </section>
     </main>
 
     <footer class="site-footer">
-      <div class="wrap footer-inner">
-        <p>FLC Ingeniería</p>
-        <a href="index.html#contacto">Contacto</a>
+      <div class="wrap footer-plano">
+        <p class="footer-marca">Grupo Frías</p>
+        <p class="footer-bajada">Ingeniería para el Sur</p>
+        <p class="footer-divisiones">Frías Electricidad · Frías Construcción · Frías Territorio</p>
+        <p class="footer-direccion">Ricardo García, Parcela 38 Kilómetro 4, Puerto Montt</p>
       </div>
     </footer>
 
     <script src="js/intranet-config.js"></script>
-    <script src="js/main.js?v=7"></script>
+    <script src="js/main.js?v=11"></script>
   </body>
 </html>
