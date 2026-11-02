@@ -49,17 +49,30 @@ const PUBLICO = {
   equipo: ["id_miembro", "nombre", "cargo_rol", "descripcion", "imagen_url", "orden_aparicion"],
 };
 
+function datosDeEntrada(e) {
+  const datos = {};
+  const parametros = (e && e.parameter) || {};
+  Object.keys(parametros).forEach(function (clave) {
+    const valor = parametros[clave];
+    datos[clave] = Array.isArray(valor) ? valor[0] : valor;
+  });
+  try {
+    const cuerpo = JSON.parse((e && e.postData && e.postData.contents) || "");
+    if (cuerpo && typeof cuerpo === "object") {
+      Object.keys(cuerpo).forEach(function (clave) {
+        if (cuerpo[clave] != null && cuerpo[clave] !== "") datos[clave] = cuerpo[clave];
+      });
+    }
+  } catch (error) {}
+  return datos;
+}
+
 function doGet(e) {
-  return atender((e && e.parameter) || {});
+  return atender(datosDeEntrada(e));
 }
 
 function doPost(e) {
-  try {
-    const datos = JSON.parse((e.postData && e.postData.contents) || "{}");
-    return atender(datos);
-  } catch (error) {
-    return responder({ ok: false, error: String(error.message || error) });
-  }
+  return atender(datosDeEntrada(e));
 }
 
 function atender(parametros) {

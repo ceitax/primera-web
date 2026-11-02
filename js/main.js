@@ -456,7 +456,14 @@ function initCotizacion(formulario) {
     notaEstado(nota, "Enviando…", false);
 
     try {
-      const respuesta = await fetch(base, {
+      const respuesta = await fetch(base + "?" + new URLSearchParams({
+        accion: "cotizar",
+        nombre: datos.nombre || "",
+        telefono: datos.telefono || "",
+        correo: datos.correo || "",
+        servicio: datos.servicio || "",
+        mensaje: datos.mensaje || "",
+      }), {
         method: "POST",
         redirect: "follow",
         headers: { "Content-Type": "text/plain;charset=utf-8" },
