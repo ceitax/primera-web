@@ -177,8 +177,8 @@ function fotoPublica(archivo) {
 }
 
 const SERVICIOS_COTIZACION = ["Frías Electricidad", "Frías Construcción", "Frías Territorio"];
-const CORREO_COTIZACION = "pceafrias7@gmail.com";
-const COPIA_COTIZACION = "pabloceaduran@gmail.com,alarcon73237717@gmail.com";
+const CORREO_COTIZACION = "contacto@grupofrias.cl";
+const COPIA_COTIZACION = "pceafrias7@gmail.com,alarcon73237717@gmail.com,roblejan.levin@gmail.com";
 
 function recortar(valor, maximo) {
   const limpio = texto(valor);

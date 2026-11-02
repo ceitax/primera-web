@@ -746,6 +746,15 @@ button.btn:disabled {
   margin: 0.35rem 0 0;
 }
 
+.footer-contacto {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 0.6rem;
+  margin: 0.45rem 0 0;
+  color: var(--blanco);
+  font-weight: 700;
+}
+
 .footer-direccion {
   margin: 0.55rem 0 0;
   color: var(--blanco);
