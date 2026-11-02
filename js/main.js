@@ -437,6 +437,9 @@ function notaEstado(nodo, mensaje, esError) {
   nodo.classList.toggle("is-error", Boolean(esError));
 }
 
+const CORREO_COTIZACION = "contacto@grupofrias.cl";
+const COPIA_COTIZACION = "pceafrias7@gmail.com,alarcon73237717@gmail.com,roblejan.levin@gmail.com";
+
 function initCotizacion(formulario) {
   const nota = document.getElementById("cotizar-estado");
   const boton = formulario.querySelector("[type=submit]");
@@ -446,53 +449,61 @@ function initCotizacion(formulario) {
     if (!formulario.reportValidity()) return;
 
     const datos = Object.fromEntries(new FormData(formulario).entries());
-    const base = scriptBasePublico();
-    if (!base) {
-      notaEstado(nota, "Falta la dirección del script de Google.", true);
+    if (String(datos._gotcha || "").trim()) {
+      formulario.reset();
+      notaEstado(nota, "Recibimos tu solicitud. El equipo te contactará.", false);
       return;
     }
+
+    const nombre = String(datos.nombre || "").trim();
+    const telefono = String(datos.telefono || "").trim();
+    const correo = String(datos.correo || "").trim();
+    const servicio = String(datos.servicio || "").trim();
+    const mensaje = String(datos.mensaje || "").trim();
 
     if (boton) boton.disabled = true;
     notaEstado(nota, "Enviando…", false);
 
     try {
-      const respuesta = await fetch(base + "?" + new URLSearchParams({
-        accion: "cotizar",
-        nombre: datos.nombre || "",
-        telefono: datos.telefono || "",
-        correo: datos.correo || "",
-        servicio: datos.servicio || "",
-        mensaje: datos.mensaje || "",
-      }), {
+      const respuesta = await fetch("https://formsubmit.co/ajax/" + CORREO_COTIZACION, {
         method: "POST",
-        redirect: "follow",
-        headers: { "Content-Type": "text/plain;charset=utf-8" },
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
         body: JSON.stringify({
-          accion: "cotizar",
-          nombre: datos.nombre || "",
-          telefono: datos.telefono || "",
-          correo: datos.correo || "",
-          servicio: datos.servicio || "",
-          mensaje: datos.mensaje || "",
+          Nombre: nombre,
+          "Teléfono / WhatsApp": telefono,
+          Correo: correo,
+          Servicio: servicio,
+          Mensaje: mensaje,
+          _subject: "Cotización Grupo Frías — " + servicio + " — " + nombre,
+          _template: "table",
+          _captcha: "false",
+          _cc: COPIA_COTIZACION,
+          _replyto: correo,
         }),
       });
       let cuerpo = {};
       try {
         cuerpo = await respuesta.json();
       } catch (error) {
-        throw new Error("Google no respondió con datos. Publica la nueva versión del script.");
+        throw new Error("El servicio de correo no respondió. Intenta de nuevo en unos minutos.");
       }
-      if (!respuesta.ok || cuerpo.ok === false || cuerpo.cotizacion !== true) {
-        throw new Error(
-          cuerpo.error || "El script publicado todavía no recibe cotizaciones. Publica la nueva versión del script."
-        );
+      const enviado = cuerpo.success === true || cuerpo.success === "true";
+      if (!respuesta.ok || !enviado) {
+        const aviso = String(cuerpo.message || "");
+        if (/activat|confirm/i.test(aviso)) {
+          throw new Error("FormSubmit envió un enlace de activación a contacto@grupofrias.cl. Ábrelo y vuelve a enviar la cotización.");
+        }
+        throw new Error(aviso || "No se pudo enviar la cotización.");
       }
       formulario.reset();
       notaEstado(nota, "Recibimos tu solicitud. El equipo te contactará.", false);
     } catch (error) {
       const mensaje =
         error && error.message === "Failed to fetch"
-          ? "No pude contactar Google. Publica la nueva versión del script y vuelve a intentar."
+          ? "No pude contactar el servicio de correo. Revisa tu conexión e intenta de nuevo."
           : (error && error.message) || "No se pudo enviar la cotización.";
       notaEstado(nota, mensaje, true);
     } finally {
