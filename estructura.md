@@ -1,8 +1,8 @@
 # Página comercial
 
-Una sola página para el cliente: `index.html`. El estilo está en `css/style.css`. El comportamiento está en `js/main.js`. La dirección del script público está en `js/intranet-config.js`.
+Una sola página para el cliente: `index.html`. El estilo está en `css/style.css`. El comportamiento está en `js/main.js`. La dirección del script público está en `js/web-config.js`.
 
-La página publicada es GitHub Pages. El script público es el Apps Script que ya usa esa dirección. El archivo local es `apps-script/Codigo.gs`. `clasp push` lo sube a ese mismo proyecto. `clasp deploy` publica una versión nueva de la misma implementación, sin cambiar la dirección.
+La página publicada es GitHub Pages. El script público es el Apps Script que ya usa esa dirección. El archivo local es `gas-grupofrias-web/Código.js`. `clasp push` lo sube a ese mismo proyecto. `clasp deploy` publica una versión nueva de la misma implementación, sin cambiar la dirección.
 
 Ese script solo entrega las fotos de los tres álbumes. La cotización no pasa por él.
 
