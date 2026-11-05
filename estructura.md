@@ -1,65 +1,36 @@
-# FLC Ingeniería y NODO
+# Página comercial
 
-FLC Ingeniería reúne tres frentes: electricidad, propiedades y desarrollo. El sitio público presenta la empresa. NODO es la intranet donde se gestionan los proyectos reales.
+Una sola página para el cliente: `index.html`. El estilo está en `css/style.css`. El comportamiento está en `js/main.js`. La dirección del script público está en `js/intranet-config.js`.
 
-La carpeta madre de Drive es [FLC](https://drive.google.com/drive/folders/1ZtqLxSUQ98yu_iZsigyKterbvFMlwlqm). ELE-001, ELE-002 y ELE-003 ya son obras reales y no se recrean ni se renumeran. Un proyecto nuevo nace dentro de esa misma carpeta.
+La página publicada es GitHub Pages. El script público es el Apps Script que ya usa esa dirección. El archivo local es `apps-script/Codigo.gs`. `clasp push` lo sube a ese mismo proyecto. `clasp deploy` publica una versión nueva de la misma implementación, sin cambiar la dirección.
 
-## Sitio público
+Ese script solo entrega las fotos de los tres álbumes. La cotización no pasa por él.
 
-- Inicio: la empresa, las tres áreas y el equipo que está en `3_1_Web_Equipo`.
-- Electricidad: instalaciones, mantenimiento y proyectos de obra. El mapa de gestión no está aquí.
-- Propiedades: catálogo y mapa de parcelas.
-- Desarrollo: fichas de `03_Web_Proyectos`. Si `requiere_auth` está marcado, esa ficha no sale.
-- El catálogo público no muestra responsable, carpeta, aprobador ni correos.
+## Bloques de la página
 
-## NODO
+- Inicio: texto, WhatsApp, correo y el ancla de cotización. El logo es `img/logos/FriasCuadrado.jpg`.
+- Nosotros: el texto del origen y el carrusel `origen`. Debajo, las tres tarjetas del equipo.
+- Servicios: tres tarjetas, sin enlace a otra página. Electricidad usa `img/logos/FriasE.jpg`, Construcción usa `img/logos/FriasC.jpg` y Territorio usa `img/logos/FriasT.jpg`. Cada una abre WhatsApp con su propio mensaje.
+- Cómo trabajamos: el carrusel `proceso` y el pedido de catálogo por WhatsApp.
+- Cotizar: el formulario de la página.
+- Pie: `contacto@grupofrias.cl`, `+56978623493` y la dirección de Puerto Montt.
 
-La intranet abre con la línea `NODO: Gestiona proyectos de forma fácil y ordenada`. Arriba se ve el nombre de quien entró, sin el rol. La barra del sitio se mantiene.
+## Fotos
 
-- Electricidad se ve por tarjetas o por mapa. El mapa usa la latitud y la longitud de cada proyecto.
-- Propiedades sigue en tarjetas, con su formulario de alta.
-- Clientes lista, crea y edita las personas de `1_1_Clientes_Electricidad`.
-- Nuevo proyecto envía todos los datos. El script toma el siguiente código ELE, escribe la fila, crea la carpeta y copia el checklist.
-- Actualizar, el botón rojo, revisa `04_Fotografias_Obra` de cada proyecto y agrega en la hoja las fotos que falten. No cambia títulos, comentarios ni códigos.
+`js/main.js` pide cada álbum al script con `fotosPublicas`. El script lee Drive, deja cada imagen visible con el enlace y devuelve la miniatura.
 
-La ficha de un circuito muestra comuna, potencia, cliente, la última versión de cada plano (`V1`, `V2` en `01_Planos`), el checklist, el inventario y un carrusel de fotos. El título y el comentario de cada foto se guardan en la hoja. Terminar escribe el correo de la sesión en `aprobador` y deja el estado en Terminado.
+- `origen`, carrusel de Nosotros. Parte del archivo `1iNHYQGFzIcQOlSL5mIxiHJOU4C_B8O6-` y lista las imágenes de su carpeta. Si el script no responde, queda esa misma foto. Si la imagen falla, queda `img/casa_generica.jpg`.
+- `proceso`, carrusel de Cómo trabajamos. Carpeta `17za_k2NMnEvoG7Oi1NCoya1AtFflPwaQ`.
+- `equipo`, las tres tarjetas. Carpeta `1jyanb2FTiRX6f9hoJilt7C53_Vk70S7d`. El orden lo da el número del nombre: `1.jpg` es Pablo Cea Frías, `2.jpg` es Diego Levín Alarcón y `3.jpg` es Robinson Levín Frías. Si una foto no carga, queda la inicial.
 
-## Carpetas de cada proyecto
+Cada álbum muestra hasta 12 imágenes, ordenadas por nombre.
 
-Dentro de `[ELE-00X] Nombre`:
+## Cotización
 
-- `01_Planos`: PDF con versión al final del nombre. La ficha muestra la versión más alta.
-- `02_Documentos_SEC`: documentos entregados por la SEC.
-- `03_Informes_Tecnicos`: el resto de documentos técnicos.
-- `04_Fotografias_Obra`: respaldos fotográficos. Cada imagen tiene título y comentario.
+El formulario lo envía `js/main.js` a FormSubmit. El mensaje llega a `contacto@grupofrias.cl`, con copia a `pceafrias7@gmail.com`, `alarcon73237717@gmail.com` y `roblejan.levin@gmail.com`. Al responder, la respuesta sale al correo que escribió el cliente.
 
-## Hoja FLC_Propiedades_DB
+Los campos son nombre, teléfono, correo, servicio y mensaje. El servicio es Frías Electricidad, Frías Construcción o Frías Territorio.
 
-- `700_Administradores`: correo, nombre, rol, clave y estado. El ingreso lee esta pestaña. Si la clave está vacía, la inicial es `test123` y el primer ingreso puede dejar una nueva, guardada como hash.
-- `00_Correlativos`: el siguiente número. Al crear, el script usa el mayor entre ese número y los códigos que ya existen, para no pisar ELE-001.
-- `00_Plantilla_Requerimientos`: tareas que se copian al checklist de un proyecto nuevo. Si una tarea apunta a `02_Certificados_SEC`, se guarda como `02_Documentos_SEC`.
-- `01_Electricidad_Proyectos`: `id_proyecto`, `id_cliente`, `comuna`, `nombre_circuito`, `tipo_servicio`, `cliente_sector`, `estado`, `latitud`, `longitud`, `imagen_url`, `descripcion`, `responsable_correo`, `aprobador`, `folder_id`, `folder_url`, `fecha_creacion`, `potencia_declarada`.
-- `1_1_Clientes_Electricidad`: `id_cliente`, nombre, RUT, teléfono, correo, tipo de persona, dirección y fecha.
-- `1_2_Checklist_Proyectos`: tareas de cada ELE.
-- `1_3_Inventario_Materiales`: materiales de cada ELE.
-- `1_4 Imagenes`: `id_proyecto`, `url`, `titulo`, `comentario`.
-- `02_Propiedades`: parcelas y terrenos del mapa público y de la pestaña Propiedades.
-- `2_1_Solicitudes_Propiedades`: consultas, todavía sin uso en la web.
-- `03_Web_Proyectos` y `3_1_Web_Equipo`: el sitio público.
+## Contacto directo
 
-El script lee y escribe por el nombre de la columna.
-
-## Qué hace el script
-
-El archivo es `apps-script/Codigo.gs`. Corre con la cuenta de Google dueña de la hoja, así puede escribir celdas y crear carpetas. Hay un solo archivo: un segundo `.gs` en el mismo proyecto vuelve a declarar las mismas constantes y se cae.
-
-- Entra con el correo de `700_Administradores`. Admin ve electricidad y propiedades. Electricidad ve electricidad y clientes. Propiedades ve propiedades.
-- Crea un circuito: código, fila, carpeta en FLC y las cuatro subcarpetas, más el checklist y una línea de inventario.
-- Guarda la ficha y los datos del cliente.
-- Termina el proyecto.
-- Sube una foto desde NODO a `04_Fotografias_Obra` y agrega la fila en `1_4 Imagenes`.
-- Actualizar recorre esas carpetas. Una foto nueva entra con el nombre del archivo como título y el comentario vacío. Lo ya escrito no se pisa.
-- El menú de la hoja, NODO Electricidad, tiene la misma actualización de fotos.
-- El catálogo público sale por `catalogoPublico`.
-
-Para que la web publicada use este archivo hay que pegarlo en el editor de la hoja y publicar una versión nueva de la misma implementación. Guardar el editor no alcanza.
+El WhatsApp de la barra, del inicio y del pie es `+56978623493`, con el mensaje de cotizar un proyecto. Electricidad, Construcción y Territorio agregan el nombre de su área. El catálogo pide los proyectos y diseños de casas, y no usa el mensaje de cotización. El botón Enviar correo abre `contacto@grupofrias.cl`.

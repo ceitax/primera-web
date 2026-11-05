@@ -41,7 +41,7 @@ function errorLegible(error) {
 }
 
 function scriptBase() {
-  return (config.scriptUrl || "").replace(/\/$/, "");
+  return (config.nodoUrl || config.scriptUrl || "").replace(/\/$/, "");
 }
 
 function tieneElectricidad() {
